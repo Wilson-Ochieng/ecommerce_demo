@@ -32,8 +32,17 @@ class _RootsScreenState extends State<RootsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: Builder(builder: (context) {
+          
+
+          return IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () {
+          Scaffold.of(context).openDrawer();
+        });
+        },),
+
       ),
       drawer: Drawer(
         child: ListView(

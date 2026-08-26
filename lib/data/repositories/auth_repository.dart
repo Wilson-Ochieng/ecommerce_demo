@@ -38,7 +38,17 @@ class AuthRepository {
     // SEND EMAIL VERIFICATION
     // ==========================================================
 
-    await firebaseUser.sendEmailVerification();
+    try {
+      await firebaseUser.sendEmailVerification();
+
+      print('Verification email requested for: ${firebaseUser.email}');
+    } on FirebaseAuthException catch (e) {
+      print('EMAIL VERIFICATION ERROR');
+      print('Code: ${e.code}');
+      print('Message: ${e.message}');
+
+      throw Exception(e.message ?? 'Failed to send verification email.');
+    }
 
     // ==========================================================
     // CREATE FIRESTORE USER PROFILE
