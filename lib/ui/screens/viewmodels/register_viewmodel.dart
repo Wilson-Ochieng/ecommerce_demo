@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:test_app/data/models/user_model.dart';
 import 'package:test_app/data/repositories/auth_repository.dart';
 
-
 class RegisterViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
 
-  RegisterViewModel({
-    AuthRepository? authRepository,
-  }) : _authRepository =
-            authRepository ?? AuthRepository();
+  RegisterViewModel({AuthRepository? authRepository})
+    : _authRepository = authRepository ?? AuthRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -25,6 +22,7 @@ class RegisterViewModel extends ChangeNotifier {
     required String name,
     required String email,
     required String password,
+    required String phoneNumber,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -36,6 +34,7 @@ class RegisterViewModel extends ChangeNotifier {
         name: name,
         email: email,
         password: password,
+        phoneNumber: phoneNumber,
       );
 
       return true;
@@ -50,36 +49,67 @@ class RegisterViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> verifyPhoneCode({required String smsCode}) async {
+    _isLoading = true;
+    _errorMessage = null;
+
+    notifyListeners();
+
+    try {
+      await _authRepository.verifyPhoneCode(smsCode: smsCode);
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+
+      return false;
+    } finally {
+      _isLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+  Future<bool> sendPhoneVerificationCode({required String phoneNumber}) async {
+    _isLoading = true;
+    _errorMessage = null;
+
+    notifyListeners();
+
+    try {
+      await _authRepository.sendPhoneVerificationCode(phoneNumber: phoneNumber);
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+
+      return false;
+    } finally {
+      _isLoading = false;
+
+      notifyListeners();
+    }
+  }
+
   String _handleError(Object error) {
     final message = error.toString();
 
-    if (message.contains(
-      'email-already-in-use',
-    )) {
+    if (message.contains('email-already-in-use')) {
       return 'An account already exists with this email.';
     }
 
-    if (message.contains(
-      'invalid-email',
-    )) {
+    if (message.contains('invalid-email')) {
       return 'Please enter a valid email address.';
     }
 
-    if (message.contains(
-      'weak-password',
-    )) {
+    if (message.contains('weak-password')) {
       return 'Password is too weak.';
     }
 
-    if (message.contains(
-      'permission-denied',
-    )) {
+    if (message.contains('permission-denied')) {
       return 'Account created, but your Firestore profile could not be created. Check Firestore rules.';
     }
 
-    return message.replaceFirst(
-      'Exception: ',
-      '',
-    );
+    return message.replaceFirst('Exception: ', '');
   }
 }
