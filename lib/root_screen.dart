@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:test_app/screens/cartscreen%20.dart';
-import 'package:test_app/screens/home_screen.dart';
-import 'package:test_app/screens/profilescreen.dart';
-import 'package:test_app/screens/searchscreen.dart';
+import 'package:test_app/ui/screens/cartscreen%20.dart';
+
+import 'package:test_app/ui/screens/home_screen.dart';
+import 'package:test_app/ui/screens/profilescreen.dart';
+
+import 'package:test_app/ui/screens/searchscreen.dart';
 
 class RootsScreen extends StatefulWidget {
   const RootsScreen({super.key});
@@ -28,6 +30,69 @@ class _RootsScreenState extends State<RootsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Shopify"),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: const Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(IconlyLight.home),
+              title: const Text('Home'),
+              onTap: () {
+                setState(() {
+                  currentScreen = 0;
+                });
+                controller.jumpToPage(0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(IconlyLight.search),
+              title: const Text('Search'),
+              onTap: () {
+                setState(() {
+                  currentScreen = 1;
+                });
+                controller.jumpToPage(1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(IconlyLight.bag2),
+              title: const Text('Cart'),
+              onTap: () {
+                setState(() {
+                  currentScreen = 2;
+                });
+                controller.jumpToPage(2);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(IconlyLight.profile),
+              title: const Text('Profile'),
+              onTap: () {
+                setState(() {
+                  currentScreen = 3;
+                });
+                controller.jumpToPage(3);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: PageView(
         physics: NeverScrollableScrollPhysics(),
         controller: controller,
@@ -39,12 +104,10 @@ class _RootsScreenState extends State<RootsScreen> {
         height: kBottomNavigationBarHeight,
 
         onDestinationSelected: (index) {
-
           setState(() {
-            currentScreen=index;
-            
+            currentScreen = index;
           });
-          
+          controller.jumpToPage(index);
         },
         destinations: [
           NavigationDestination(
@@ -55,12 +118,17 @@ class _RootsScreenState extends State<RootsScreen> {
           NavigationDestination(
             selectedIcon: Icon(IconlyBold.search),
             icon: Icon(IconlyLight.search),
-            label: "search",
+            label: "Search",
           ),
           NavigationDestination(
             selectedIcon: Icon(IconlyBold.bag2),
             icon: Icon(IconlyLight.bag2),
             label: "Cart",
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(IconlyBold.profile),
+            icon: Icon(IconlyLight.profile),
+            label: "Profile",
           ),
         ],
       ),
