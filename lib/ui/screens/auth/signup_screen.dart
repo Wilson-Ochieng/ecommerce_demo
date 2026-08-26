@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
-import 'package:test_app/viewmodels/register_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
 
 class RegisterScreen extends StatefulWidget {
+  static const routName = "/RegisterScreen ";
+
   const RegisterScreen({super.key});
 
   @override
@@ -68,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       create: (_) => RegisterViewModel(),
 
       child: Scaffold(
+        appBar: AppBar(leading: SizedBox.shrink()),
 
         body: SafeArea(
           child: SingleChildScrollView(

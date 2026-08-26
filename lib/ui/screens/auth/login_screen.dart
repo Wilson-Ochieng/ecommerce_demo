@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/root_screen.dart';
-import 'package:test_app/ui/screens/home_screen.dart';
-import 'package:test_app/viewmodels/login_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  static const routName= "/LoginScreen";
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -61,6 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
+appBar: AppBar(
+
+  leading: SizedBox.shrink(),
+),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

@@ -16,7 +16,7 @@ class UserProvider extends ChangeNotifier {
 
   String? get userId => _user?.uid;
 
-  String? get username => _user?.username;
+  String? get username => _user?.name;
 
   String? get email => _user?.email;
 

@@ -4,9 +4,16 @@ import 'package:provider/provider.dart';
 import 'package:test_app/constants/app_constants.dart';
 import 'package:test_app/providers/ThemeProvider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+   static const routName= "/HomeScreen(";
+   
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);

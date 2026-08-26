@@ -8,6 +8,7 @@ import 'package:test_app/ui/screens/profilescreen.dart';
 import 'package:test_app/ui/screens/searchscreen.dart';
 
 class RootsScreen extends StatefulWidget {
+  static const routName = "/RootsScreen ";
   const RootsScreen({super.key});
 
   @override
@@ -31,7 +32,6 @@ class _RootsScreenState extends State<RootsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Shopify"),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
@@ -42,7 +42,7 @@ class _RootsScreenState extends State<RootsScreen> {
             DrawerHeader(
               decoration: BoxDecoration(color: Theme.of(context).primaryColor),
               child: const Text(
-                'Menu',
+                'Shopify',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),

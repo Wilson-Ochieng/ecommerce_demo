@@ -2,50 +2,42 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
   final String uid;
-  final String username;
+  final String name;
   final String email;
-  final String userImage;
-  final Timestamp createdAt;
-  final List userCart;
-  final List userWish;
   final String role;
+  final bool emailVerified;
+  final DateTime createdAt;
 
   UserModel({
     required this.uid,
-    required this.username,
+    required this.name,
     required this.email,
-    required this.userImage,
-    required this.createdAt,
-    required this.userCart,
-    required this.userWish,
     required this.role,
+    required this.emailVerified,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'username': username,
+      'name': name,
       'email': email,
-      'userImage': userImage,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'userCart': userCart,
-      'userWish': userWish,
       'role': role,
+      'emailVerified': emailVerified,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
-      username: map['username'] ?? '',
+      name: map['name'] ?? '',
       email: map['email'] ?? '',
-      userImage: map['userImage'] ?? '',
-      createdAt: Timestamp.fromMillisecondsSinceEpoch(
-        map['createdAt'] ?? 0,
-      ),
-      userCart: List.from(map['userCart'] ?? []),
-      userWish: List.from(map['userWish'] ?? []),
-      role: map['role'] ?? 'user',
+      role: map['role'] ?? 'customer',
+      emailVerified: map['emailVerified'] ?? false,
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 }
