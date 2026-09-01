@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/root_screen.dart';
+import 'package:test_app/ui/screens/admin/admin_screen.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 
 import 'signup_screen.dart';
@@ -31,32 +32,63 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
+Future<void> _login() async {
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
+
+  final viewModel = context.read<LoginViewModel>();
+
+  final success = await viewModel.login(
+    email: _emailController.text.trim(),
+    password: _passwordController.text,
+  );
+
+  if (!mounted) return;
+
+  if (success) {
+    final user = viewModel.user;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to retrieve user information.'),
+        ),
+      );
       return;
     }
 
-    final viewModel = context.read<LoginViewModel>();
-
-    final success = await viewModel.login(
-      email: _emailController.text,
-      password: _passwordController.text,
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Login successful'),
+      ),
     );
 
-    if (!mounted) return;
-
-    if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login successful')));
-
+    if (user.role == 'admin') {
       Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const RootsScreen(),
-    ));
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AdminScreen(),
+        ),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const RootsScreen(),
+        ),
+      );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          viewModel.errorMessage ?? 'Login failed',
+        ),
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

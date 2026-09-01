@@ -57,7 +57,6 @@ class DefaultFirebaseOptions {
     projectId: 'ecommerce-app-460ef',
     storageBucket: 'ecommerce-app-460ef.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAoq_yLWArqUKJCgcdX1srMlMnuJK3TE1U',
     appId: '1:277705410335:ios:0db59b62853a91520c122a',
@@ -67,7 +66,6 @@ class DefaultFirebaseOptions {
     iosClientId: '277705410335-i2sk161rm9gf9f9snvmr2n9k750mbcmn.apps.googleusercontent.com',
     iosBundleId: 'com.example.testApp',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAoq_yLWArqUKJCgcdX1srMlMnuJK3TE1U',
     appId: '1:277705410335:ios:0db59b62853a91520c122a',
