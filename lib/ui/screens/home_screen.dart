@@ -9,7 +9,6 @@ import 'package:test_app/ui/screens/widgets/product_card.dart';
 
 // Product MVVM imports
 
-
 class HomeScreen extends StatefulWidget {
   static const routName = "/HomeScreen";
 
@@ -28,19 +27,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final productViewModel = context.read<ProductViewModel>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Shopify"),
-      ),
+      appBar: AppBar(title: const Text("Shopify")),
 
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             // =====================================================
             // BANNER SWIPER
             // =====================================================
-
             Padding(
               padding: const EdgeInsets.all(12),
               child: SizedBox(
@@ -54,15 +49,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         fit: BoxFit.cover,
                       );
                     },
-                    indicatorLayout:
-                        PageIndicatorLayout.COLOR,
+                    indicatorLayout: PageIndicatorLayout.COLOR,
                     autoplay: true,
-                    itemCount:
-                        AppConstants.bannerImage.length,
-                    pagination:
-                        const SwiperPagination(),
-                    control:
-                        const SwiperControl(),
+                    itemCount: AppConstants.bannerImage.length,
+                    pagination: const SwiperPagination(),
+                    control: const SwiperControl(),
                   ),
                 ),
               ),
@@ -71,38 +62,27 @@ class _HomeScreenState extends State<HomeScreen> {
             // =====================================================
             // SECTION TITLE
             // =====================================================
-
             const Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Text(
                 "Latest Products",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
 
             // =====================================================
             // PRODUCTS FROM FIRESTORE
             // =====================================================
-
             StreamBuilder<List<ProductModel>>(
               stream: productViewModel.products,
 
               builder: (context, snapshot) {
-
                 // LOADING
-                if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(30),
-                      child:
-                          CircularProgressIndicator(),
+                      child: CircularProgressIndicator(),
                     ),
                   );
                 }
@@ -112,22 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Text(
-                        "Error: ${snapshot.error}",
-                      ),
+                      child: Text("Error: ${snapshot.error}"),
                     ),
                   );
                 }
 
                 // NO PRODUCTS
-                if (!snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(30),
-                      child: Text(
-                        "No products available",
-                      ),
+                      child: Text("No products available"),
                     ),
                   );
                 }
@@ -139,16 +114,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Important because we are inside
                   // SingleChildScrollView
-                  physics:
-                      const NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
 
-                  padding:
-                      const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
 
                   itemCount: products.length,
 
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
 
                     crossAxisSpacing: 12,
@@ -159,9 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   itemBuilder: (context, index) {
-                    return ProductCard(
-                      product: products[index],
-                    );
+                    return ProductCard(product: products[index]);
                   },
                 );
               },
@@ -170,16 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
             // =====================================================
             // THEME SWITCH
             // =====================================================
-
             SwitchListTile(
               title: Text(
-                themeProvider.getIsDarkTHeme
-                    ? "Dark Theme"
-                    : "Light Theme",
+                themeProvider.getIsDarkTHeme ? "Dark Theme" : "Light Theme",
               ),
 
-              value:
-                  themeProvider.getIsDarkTHeme,
+              value: themeProvider.getIsDarkTHeme,
 
               onChanged: (value) {
                 themeProvider.setDarkTheme(value);

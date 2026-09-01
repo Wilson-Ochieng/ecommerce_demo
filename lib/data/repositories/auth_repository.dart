@@ -288,4 +288,45 @@ class AuthRepository {
   Future<void> logout() async {
     await _auth.signOut();
   }
+  // ============================================================
+  // GET CURRENT USER PROFILE
+  // ============================================================
+
+  Future<UserModel?> getCurrentUser() async {
+    final firebaseUser = _auth.currentUser;
+
+    // No Firebase user is currently signed in
+    if (firebaseUser == null) {
+      return null;
+    }
+
+    // Refresh Firebase authentication state
+    await firebaseUser.reload();
+
+    final currentUser = _auth.currentUser;
+
+    if (currentUser == null) {
+      return null;
+    }
+
+    // User must have verified their email
+    if (!currentUser.emailVerified) {
+      await _auth.signOut();
+      return null;
+    }
+
+    // Get the user's Firestore profile
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .get();
+
+    if (!snapshot.exists || snapshot.data() == null) {
+      await _auth.signOut();
+
+      throw Exception('User profile does not exist in Firestore.');
+    }
+
+    return UserModel.fromMap(snapshot.data()!);
+  }
 }

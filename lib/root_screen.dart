@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/cartscreen%20.dart';
 
 import 'package:test_app/ui/screens/home_screen.dart';
 import 'package:test_app/ui/screens/profilescreen.dart';
 
 import 'package:test_app/ui/screens/searchscreen.dart';
+import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 
 class RootsScreen extends StatefulWidget {
   static const routName = "/RootsScreen ";
@@ -28,21 +32,40 @@ class _RootsScreenState extends State<RootsScreen> {
     super.initState();
   }
 
+  Future<void> _logout() async {
+    final viewModel = context.read<AuthStartupViewModel>();
+
+    final success = await viewModel.logout();
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage ?? 'Failed to sign out')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: Builder(builder: (context) {
-          
-
-          return IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        });
-        },),
-
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -97,6 +120,20 @@ class _RootsScreenState extends State<RootsScreen> {
                 });
                 controller.jumpToPage(3);
                 Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+
+                await _logout();
               },
             ),
           ],

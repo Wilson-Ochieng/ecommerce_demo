@@ -4,12 +4,61 @@ import 'package:test_app/data/models/product_model.dart';
 import 'package:test_app/ui/screens/admin/product_form_screen.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
 
-
+import '../auth/login_screen.dart';
+import '../viewmodels/auth_startup_viewmodel.dart';
 
 class AdminScreen extends StatelessWidget {
   static const routeName = '/admin';
 
   const AdminScreen({super.key});
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+
+          content: const Text('Are you sure you want to sign out?'),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    final viewModel = context.read<AuthStartupViewModel>();
+
+    final success = await viewModel.logout();
+
+    if (!context.mounted) return;
+
+    if (success) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage ?? 'Failed to sign out')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +67,22 @@ class AdminScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-      ),
 
+        actions: [
+          IconButton(
+            tooltip: 'Sign Out',
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              _confirmLogout(context);
+            },
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const ProductFormScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const ProductFormScreen()),
           );
         },
         icon: const Icon(Icons.add),
@@ -38,27 +94,17 @@ class AdminScreen extends StatelessWidget {
 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-              ),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           final products = snapshot.data ?? [];
 
           if (products.isEmpty) {
-            return const Center(
-              child: Text(
-                'No products available.',
-              ),
-            );
+            return const Center(child: Text('No products available.'));
           }
 
           return ListView.builder(
@@ -87,15 +133,12 @@ class AdminScreen extends StatelessWidget {
                           height: 90,
                           fit: BoxFit.cover,
 
-                          errorBuilder:
-                              (context, error, stackTrace) {
+                          errorBuilder: (context, error, stackTrace) {
                             return Container(
                               width: 90,
                               height: 90,
                               color: Colors.grey.shade300,
-                              child: const Icon(
-                                Icons.image_not_supported,
-                              ),
+                              child: const Icon(Icons.image_not_supported),
                             );
                           },
                         ),
@@ -106,24 +149,19 @@ class AdminScreen extends StatelessWidget {
                       // PRODUCT DETAILS
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text(
                               product.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium,
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
 
                             const SizedBox(height: 5),
 
                             Text(
                               product.category,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
 
                             const SizedBox(height: 5),
@@ -137,9 +175,7 @@ class AdminScreen extends StatelessWidget {
 
                             const SizedBox(height: 5),
 
-                            Text(
-                              'Stock: ${product.stock}',
-                            ),
+                            Text('Stock: ${product.stock}'),
                           ],
                         ),
                       ),
@@ -154,24 +190,16 @@ class AdminScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) =>
-                                      ProductFormScreen(
-                                    product: product,
-                                  ),
+                                      ProductFormScreen(product: product),
                                 ),
                               );
                             },
                           ),
 
                           IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              _confirmDelete(
-                                context,
-                                product,
-                              );
+                              _confirmDelete(context, product);
                             },
                           ),
                         ],
@@ -198,9 +226,7 @@ class AdminScreen extends StatelessWidget {
         return AlertDialog(
           title: const Text('Delete Product'),
 
-          content: Text(
-            'Are you sure you want to delete ${product.name}?',
-          ),
+          content: Text('Are you sure you want to delete ${product.name}?'),
 
           actions: [
             TextButton(
@@ -223,20 +249,16 @@ class AdminScreen extends StatelessWidget {
 
     if (confirm != true) return;
 
-    final viewModel =
-        context.read<ProductViewModel>();
+    final viewModel = context.read<ProductViewModel>();
 
-    final success =
-        await viewModel.deleteProduct(product.id);
+    final success = await viewModel.deleteProduct(product.id);
 
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success
-              ? 'Product deleted successfully'
-              : 'Failed to delete product',
+          success ? 'Product deleted successfully' : 'Failed to delete product',
         ),
       ),
     );
