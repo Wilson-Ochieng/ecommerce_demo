@@ -288,6 +288,7 @@ class AuthRepository {
   Future<void> logout() async {
     await _auth.signOut();
   }
+
   // ============================================================
   // GET CURRENT USER PROFILE
   // ============================================================
@@ -328,5 +329,48 @@ class AuthRepository {
     }
 
     return UserModel.fromMap(snapshot.data()!);
+  }
+
+  // ============================================================
+  // GET ALL USERS
+  // ============================================================
+
+  Stream<List<UserModel>> getUsers() {
+    return _firestore
+        .collection('users')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return UserModel.fromMap(doc.data());
+          }).toList();
+        });
+  }
+
+  // ============================================================
+  // UPDATE USER ROLE
+  // ============================================================
+
+  Future<void> updateUserRole({
+    required String uid,
+    required String role,
+  }) async {
+    // Only allow application roles that
+    // our application understands.
+
+    if (role != 'admin' && role != 'customer') {
+      throw Exception('Invalid user role.');
+    }
+
+    await _firestore.collection('users').doc(uid).update({'role': role});
+  }
+
+  // ============================================================
+  // DELETE USER FIRESTORE PROFILE
+  // ============================================================
+  // ============================================================
+
+  Future<void> deleteUserProfile(String uid) async {
+    await _firestore.collection('users').doc(uid).delete();
   }
 }

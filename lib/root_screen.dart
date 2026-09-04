@@ -12,7 +12,7 @@ import 'package:test_app/ui/screens/searchscreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 
 class RootsScreen extends StatefulWidget {
-  static const routName = "/RootsScreen ";
+  static const routName = "/RootsScreen";
   const RootsScreen({super.key});
 
   @override

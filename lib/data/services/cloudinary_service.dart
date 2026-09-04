@@ -5,11 +5,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class CloudinaryService {
-  final String cloudName =
-      dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
+  final String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
 
-  final String uploadPreset =
-      dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
+  final String uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
 
   Future<String> uploadImage(File image) async {
     if (cloudName.isEmpty || uploadPreset.isEmpty) {
@@ -25,23 +23,15 @@ class CloudinaryService {
     final request = http.MultipartRequest('POST', url);
 
     request.fields['upload_preset'] = uploadPreset;
-
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        image.path,
-      ),
-    );
+    request.fields['folder'] = 'shopify/products';
+    request.files.add(await http.MultipartFile.fromPath('file', image.path));
 
     final response = await request.send();
 
-    final responseBody =
-        await response.stream.bytesToString();
+    final responseBody = await response.stream.bytesToString();
 
     if (response.statusCode != 200) {
-      throw Exception(
-        'Cloudinary upload failed: $responseBody',
-      );
+      throw Exception('Cloudinary upload failed: $responseBody');
     }
 
     final data = jsonDecode(responseBody);
@@ -49,9 +39,7 @@ class CloudinaryService {
     final imageUrl = data['secure_url'];
 
     if (imageUrl == null) {
-      throw Exception(
-        'Cloudinary did not return an image URL.',
-      );
+      throw Exception('Cloudinary did not return an image URL.');
     }
 
     return imageUrl;

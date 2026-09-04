@@ -6,14 +6,12 @@ import 'package:provider/provider.dart';
 
 import 'package:test_app/data/models/product_model.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 
 class ProductFormScreen extends StatefulWidget {
   final ProductModel? product;
 
-  const ProductFormScreen({
-    super.key,
-    this.product,
-  });
+  const ProductFormScreen({super.key, this.product});
 
   bool get isEditing => product != null;
 
@@ -54,9 +52,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     final product = widget.product;
 
-    _nameController = TextEditingController(
-      text: product?.name ?? '',
-    );
+    _nameController = TextEditingController(text: product?.name ?? '');
 
     _descriptionController = TextEditingController(
       text: product?.description ?? '',
@@ -72,8 +68,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     _existingImageUrl = product?.imageUrl;
 
-    if (product != null &&
-        categories.contains(product.category)) {
+    if (product != null && categories.contains(product.category)) {
       _category = product.category;
     }
   }
@@ -110,10 +105,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         _existingImageUrl = null;
       });
     } catch (e) {
-      _showMessage(
-        'Failed to select image: $e',
-        isError: true,
-      );
+      _showMessage('Failed to select image: $e', isError: true);
     }
   }
 
@@ -146,14 +138,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 },
               ),
 
-              if (_selectedImage != null || 
-                  (_existingImageUrl != null &&
-                      _existingImageUrl!.isNotEmpty))
+              if (_selectedImage != null ||
+                  (_existingImageUrl != null && _existingImageUrl!.isNotEmpty))
                 ListTile(
-                  leading: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ),
+                  leading: const Icon(Icons.delete, color: Colors.red),
                   title: const Text('Remove Image'),
                   onTap: () {
                     Navigator.pop(context);
@@ -182,29 +170,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     final viewModel = context.read<ProductViewModel>();
 
-    final price = double.tryParse(
-      _priceController.text.trim(),
-    );
+    final price = double.tryParse(_priceController.text.trim());
 
-    final stock = int.tryParse(
-      _stockController.text.trim(),
-    );
+    final stock = int.tryParse(_stockController.text.trim());
 
     if (price == null || stock == null) {
-      _showMessage(
-        'Please enter valid price and stock values.',
-        isError: true,
-      );
+      _showMessage('Please enter valid price and stock values.', isError: true);
       return;
     }
 
     // For a new product an image is required.
-    if (!widget.isEditing &&
-        _selectedImage == null) {
-      _showMessage(
-        'Please select a product image.',
-        isError: true,
-      );
+    if (!widget.isEditing && _selectedImage == null) {
+      _showMessage('Please select a product image.', isError: true);
       return;
     }
 
@@ -212,12 +189,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     // must be available.
     if (widget.isEditing &&
         _selectedImage == null &&
-        (_existingImageUrl == null ||
-            _existingImageUrl!.isEmpty)) {
-      _showMessage(
-        'Please select a product image.',
-        isError: true,
-      );
+        (_existingImageUrl == null || _existingImageUrl!.isEmpty)) {
+      _showMessage('Please select a product image.', isError: true);
       return;
     }
 
@@ -245,8 +218,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       Navigator.pop(context);
     } else {
       _showMessage(
-        viewModel.errorMessage ??
-            'Failed to save product.',
+        viewModel.errorMessage ?? 'Failed to save product.',
         isError: true,
       );
     }
@@ -256,15 +228,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   // SNACKBAR
   // ============================================================
 
-  void _showMessage(
-    String message, {
-    bool isError = false,
-  }) {
+  void _showMessage(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor:
-            isError ? Colors.red : null,
+        backgroundColor: isError ? Colors.red : null,
       ),
     );
   }
@@ -283,18 +251,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       );
     }
 
-    if (_existingImageUrl != null &&
-        _existingImageUrl!.isNotEmpty) {
+    if (_existingImageUrl != null && _existingImageUrl!.isNotEmpty) {
       return Image.network(
         _existingImageUrl!,
         width: double.infinity,
         height: 220,
         fit: BoxFit.cover,
-        errorBuilder: (
-          context,
-          error,
-          stackTrace,
-        ) {
+        errorBuilder: (context, error, stackTrace) {
           return _emptyImageWidget();
         },
       );
@@ -314,17 +277,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.image_outlined,
-            size: 60,
-            color: Colors.grey,
-          ),
+          Icon(Icons.image_outlined, size: 60, color: Colors.grey),
           SizedBox(height: 10),
           Text(
             'No product image selected',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
+            style: TextStyle(color: Colors.grey),
           ),
         ],
       ),
@@ -341,11 +298,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.isEditing
-              ? 'Update Product'
-              : 'Add Product',
-        ),
+        title: Text(widget.isEditing ? 'Update Product' : 'Add Product'),
       ),
 
       body: Form(
@@ -355,27 +308,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           padding: const EdgeInsets.all(20),
 
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
               // ==================================================
               // IMAGE SECTION
               // ==================================================
-
               Text(
                 'Product Image',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
 
               const SizedBox(height: 10),
 
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
                 child: _buildImagePreview(),
               ),
 
@@ -383,21 +330,15 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
               Row(
                 children: [
-
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed:
-                          viewModel.isLoading
-                              ? null
-                              : _showImageSourceOptions,
+                      onPressed: viewModel.isLoading
+                          ? null
+                          : _showImageSourceOptions,
 
-                      icon: const Icon(
-                        Icons.add_a_photo,
-                      ),
+                      icon: const Icon(Icons.add_a_photo),
 
-                      label: const Text(
-                        'Choose Image',
-                      ),
+                      label: const Text('Choose Image'),
                     ),
                   ),
 
@@ -412,22 +353,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     IconButton(
                       tooltip: 'Remove image',
 
-                      onPressed:
-                          viewModel.isLoading
-                              ? null
-                              : () {
-                                  setState(() {
-                                    _selectedImage =
-                                        null;
-                                    _existingImageUrl =
-                                        null;
-                                  });
-                                },
+                      onPressed: viewModel.isLoading
+                          ? null
+                          : () {
+                              setState(() {
+                                _selectedImage = null;
+                                _existingImageUrl = null;
+                              });
+                            },
 
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                     ),
                 ],
               ),
@@ -437,26 +372,20 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // PRODUCT NAME
               // ==================================================
-
               TextFormField(
                 controller: _nameController,
 
-                textInputAction:
-                    TextInputAction.next,
+                textInputAction: TextInputAction.next,
 
                 decoration: const InputDecoration(
                   labelText: 'Product Name',
-                  hintText:
-                      'Enter product name',
-                  prefixIcon: Icon(
-                    Icons.shopping_bag,
-                  ),
+                  hintText: 'Enter product name',
+                  prefixIcon: Icon(Icons.shopping_bag),
                   border: OutlineInputBorder(),
                 ),
 
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Enter product name';
                   }
 
@@ -473,28 +402,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // DESCRIPTION
               // ==================================================
-
               TextFormField(
-                controller:
-                    _descriptionController,
+                controller: _descriptionController,
 
                 maxLines: 5,
 
                 decoration: const InputDecoration(
-                  labelText:
-                      'Product Description',
-                  hintText:
-                      'Describe the product',
-                  prefixIcon: Icon(
-                    Icons.description,
-                  ),
+                  labelText: 'Product Description',
+                  hintText: 'Describe the product',
+                  prefixIcon: Icon(Icons.description),
                   border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
 
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Enter product description';
                   }
 
@@ -507,39 +429,27 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // PRICE
               // ==================================================
-
               TextFormField(
-                controller:
-                    _priceController,
+                controller: _priceController,
 
-                keyboardType:
-                    const TextInputType
-                        .numberWithOptions(
+                keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
 
-                decoration:
-                    const InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Price',
                   hintText: '0.00',
                   prefixText: 'KES ',
-                  prefixIcon: Icon(
-                    Icons.payments,
-                  ),
-                  border:
-                      OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.payments),
+                  border: OutlineInputBorder(),
                 ),
 
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Enter product price';
                   }
 
-                  final price =
-                      double.tryParse(
-                    value.trim(),
-                  );
+                  final price = double.tryParse(value.trim());
 
                   if (price == null) {
                     return 'Enter a valid price';
@@ -558,36 +468,24 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // STOCK
               // ==================================================
-
               TextFormField(
-                controller:
-                    _stockController,
+                controller: _stockController,
 
-                keyboardType:
-                    TextInputType.number,
+                keyboardType: TextInputType.number,
 
-                decoration:
-                    const InputDecoration(
-                  labelText:
-                      'Stock Quantity',
+                decoration: const InputDecoration(
+                  labelText: 'Stock Quantity',
                   hintText: '0',
-                  prefixIcon: Icon(
-                    Icons.inventory,
-                  ),
-                  border:
-                      OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.inventory),
+                  border: OutlineInputBorder(),
                 ),
 
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Enter stock quantity';
                   }
 
-                  final stock =
-                      int.tryParse(
-                    value.trim(),
-                  );
+                  final stock = int.tryParse(value.trim());
 
                   if (stock == null) {
                     return 'Enter a valid quantity';
@@ -606,40 +504,31 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // CATEGORY
               // ==================================================
-
               DropdownButtonFormField<String>(
-               value: _category,
+                value: _category,
 
-                decoration:
-                    const InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Category',
-                  prefixIcon: Icon(
-                    Icons.category,
-                  ),
-                  border:
-                      OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.category),
+                  border: OutlineInputBorder(),
                 ),
 
-                items: categories.map(
-                  (category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    );
-                  },
-                ).toList(),
+                items: categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
 
-                onChanged:
-                    viewModel.isLoading
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              setState(() {
-                                _category =
-                                    value;
-                              });
-                            }
-                          },
+                onChanged: viewModel.isLoading
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          setState(() {
+                            _category = value;
+                          });
+                        }
+                      },
               ),
 
               const SizedBox(height: 30),
@@ -647,37 +536,28 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               // SAVE BUTTON
               // ==================================================
-
               SizedBox(
                 width: double.infinity,
 
                 height: 52,
 
                 child: ElevatedButton.icon(
-                  onPressed:
-                      viewModel.isLoading
-                          ? null
-                          : _saveProduct,
+                  onPressed: viewModel.isLoading ? null : _saveProduct,
 
                   icon: viewModel.isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(
-                          Icons.save,
-                        ),
+                      : const Icon(Icons.save),
 
                   label: Text(
                     viewModel.isLoading
                         ? 'Saving Product...'
                         : widget.isEditing
-                            ? 'Update Product'
-                            : 'Add Product',
+                        ? 'Update Product'
+                        : 'Add Product',
                   ),
                 ),
               ),

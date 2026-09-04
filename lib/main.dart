@@ -12,12 +12,18 @@ import 'package:test_app/providers/UserProvider.dart';
 import 'package:test_app/root_screen.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/auth/signup_screen.dart';
+import 'package:test_app/ui/screens/auth/startup_screen.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
 import 'package:test_app/ui/screens/profilescreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/user_management_viewmodel.dart';
+
+import 'data/repositories/auth_repository.dart';
+import 'data/repositories/category_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,54 +35,112 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) {
-            return ThemeProvider();
-          },
+        // ==========================================================
+        // THEME
+        // ==========================================================
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+
+        // ==========================================================
+        // USER PROVIDER
+        // ==========================================================
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+
+        // ==========================================================
+        // AUTH REPOSITORY
+        // ==========================================================
+        Provider<AuthRepository>(create: (_) => AuthRepository()),
+
+        // ==========================================================
+        // LOGIN VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<LoginViewModel>(
+          create: (context) =>
+              LoginViewModel(authRepository: context.read<AuthRepository>()),
         ),
-        ChangeNotifierProvider(
-          create: (_) {
-            return UserProvider();
-          },
+
+        // ==========================================================
+        // REGISTER VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<RegisterViewModel>(
+          create: (context) =>
+              RegisterViewModel(authRepository: context.read<AuthRepository>()),
         ),
-        ChangeNotifierProvider(
-          create: (_) => LoginViewModel(),
-          child: LoginScreen(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => RegisterViewModel(),
-          child: RegisterScreen(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ProductViewModel(
-            productRepository: ProductRepository(),
-            cloudinaryService: CloudinaryService(),
+
+        // ==========================================================
+        // AUTH STARTUP VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<AuthStartupViewModel>(
+          create: (context) => AuthStartupViewModel(
+            authRepository: context.read<AuthRepository>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => AuthStartupViewModel()),
+
+        // ==========================================================
+        // USER MANAGEMENT VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<UserManagementViewModel>(
+          create: (context) => UserManagementViewModel(
+            authRepository: context.read<AuthRepository>(),
+          ),
+        ),
+
+        // ==========================================================
+        // PRODUCT REPOSITORY
+        // ==========================================================
+        Provider<ProductRepository>(create: (_) => ProductRepository()),
+
+        // ==========================================================
+        // CLOUDINARY SERVICE
+        // ==========================================================
+        Provider<CloudinaryService>(create: (_) => CloudinaryService()),
+
+        // ==========================================================
+        // PRODUCT VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<ProductViewModel>(
+          create: (context) => ProductViewModel(
+            productRepository: context.read<ProductRepository>(),
+            cloudinaryService: context.read<CloudinaryService>(),
+          ),
+        ),
+
+        // ==========================================================
+        // CATEGORY REPOSITORY
+        // ==========================================================
+        Provider<CategoryRepository>(create: (_) => CategoryRepository()),
+
+        // ==========================================================
+        // CATEGORY VIEW MODEL
+        // ==========================================================
+        ChangeNotifierProvider<CategoryViewModel>(
+          create: (context) =>
+              CategoryViewModel(repository: context.read<CategoryRepository>()),
+        ),
       ],
 
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
+
             theme: Styles.themeData(
               isDarkTheme: themeProvider.getIsDarkTHeme,
               context: context,
             ),
 
-            initialRoute: FirebaseAuth.instance.currentUser == null
-                ? LoginScreen.routName
-                : RootsScreen.routName,
+            home: const AuthStartupScreen(),
 
             routes: {
               LoginScreen.routName: (context) => const LoginScreen(),
-              RegisterScreen.routName: (context) => const RegisterScreen(),
-              RootsScreen.routName: (context) => const RootsScreen(),
-              Profilescreen.routName: (context) => const Profilescreen(),
-              HomeScreen.routName: (context) => HomeScreen(),
-            },
 
-            // home: LoginScreen(),
+              RegisterScreen.routName: (context) => const RegisterScreen(),
+
+              RootsScreen.routName: (context) => const RootsScreen(),
+
+              Profilescreen.routName: (context) => const Profilescreen(),
+
+              HomeScreen.routName: (context) => const HomeScreen(),
+            },
           );
         },
       ),
