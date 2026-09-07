@@ -8,6 +8,8 @@ import 'package:test_app/data/models/product_model.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 
+import '../../../data/models/ category_model.dart';
+
 class ProductFormScreen extends StatefulWidget {
   final ProductModel? product;
 
@@ -33,18 +35,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   String? _existingImageUrl;
 
-  String _category = 'Electronics';
+  /// Stores the ID of the selected category.
+  String? _selectedCategoryId;
 
-  final List<String> categories = [
-    'Electronics',
-    'Clothing',
-    'Shoes',
-    'Food',
-    'Beauty',
-    'Home',
-    'Books',
-    'Other',
-  ];
+  /// Stores the category name for editing/compatibility.
+  String? _selectedCategoryName;
 
   @override
   void initState() {
@@ -68,9 +63,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     _existingImageUrl = product?.imageUrl;
 
-    if (product != null && categories.contains(product.category)) {
-      _category = product.category;
-    }
+    // IMPORTANT:
+    // Your ProductModel currently appears to store the category
+    // as a String. We therefore initially keep the category name.
+    //
+    // The StreamBuilder below will match this name with the
+    // dynamically loaded CategoryModel and obtain its ID.
+    _selectedCategoryName = product?.category;
   }
 
   @override
@@ -100,8 +99,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       setState(() {
         _selectedImage = File(image.path);
 
-        // If user selects a new image while editing,
-        // the old Cloudinary URL should no longer be used.
+        // If editing and selecting a new image,
+        // don't use the old Cloudinary URL.
         _existingImageUrl = null;
       });
     } catch (e) {
@@ -168,7 +167,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    final viewModel = context.read<ProductViewModel>();
+    final productViewModel = context.read<ProductViewModel>();
 
     final price = double.tryParse(_priceController.text.trim());
 
@@ -179,14 +178,25 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    // For a new product an image is required.
+    // ----------------------------------------------------------
+    // CATEGORY VALIDATION
+    // ----------------------------------------------------------
+
+    if (_selectedCategoryName == null ||
+        _selectedCategoryName!.trim().isEmpty) {
+      _showMessage('Please select a product category.', isError: true);
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // IMAGE VALIDATION
+    // ----------------------------------------------------------
+
     if (!widget.isEditing && _selectedImage == null) {
       _showMessage('Please select a product image.', isError: true);
       return;
     }
 
-    // If editing, either an existing image or a new image
-    // must be available.
     if (widget.isEditing &&
         _selectedImage == null &&
         (_existingImageUrl == null || _existingImageUrl!.isEmpty)) {
@@ -194,12 +204,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return;
     }
 
-    final success = await viewModel.saveProduct(
+    // ----------------------------------------------------------
+    // SAVE
+    // ----------------------------------------------------------
+
+    final success = await productViewModel.saveProduct(
       id: widget.product?.id,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
       price: price,
-      category: _category,
+
+      // We continue sending the CATEGORY NAME because your
+      // current ProductViewModel.saveProduct() appears to
+      // expect a String category.
+      category: _selectedCategoryName!,
+
       stock: stock,
       image: _selectedImage,
       existingImageUrl: _existingImageUrl,
@@ -218,7 +237,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       Navigator.pop(context);
     } else {
       _showMessage(
-        viewModel.errorMessage ?? 'Failed to save product.',
+        productViewModel.errorMessage ?? 'Failed to save product.',
         isError: true,
       );
     }
@@ -289,12 +308,187 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ============================================================
+  // CATEGORY DROPDOWN
+  // ============================================================
+
+  Widget _buildCategoryDropdown(ProductViewModel productViewModel) {
+    final categoryViewModel = context.read<CategoryViewModel>();
+
+    return StreamBuilder<List<CategoryModel>>(
+      stream: categoryViewModel.categories,
+
+      builder: (context, snapshot) {
+        // ------------------------------------------------------
+        // LOADING
+        // ------------------------------------------------------
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              prefixIcon: Icon(Icons.category),
+              border: OutlineInputBorder(),
+            ),
+            child: Row(
+              children: const [
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text('Loading categories...'),
+              ],
+            ),
+          );
+        }
+
+        // ------------------------------------------------------
+        // ERROR
+        // ------------------------------------------------------
+
+        if (snapshot.hasError) {
+          return InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              prefixIcon: Icon(Icons.category),
+              border: OutlineInputBorder(),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to load categories',
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // ------------------------------------------------------
+        // CATEGORIES
+        // ------------------------------------------------------
+
+        final categories = snapshot.data ?? [];
+
+        if (categories.isEmpty) {
+          return InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              prefixIcon: Icon(Icons.category),
+              border: OutlineInputBorder(),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.category_outlined, color: Colors.grey),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'No categories available. Create a category first.',
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // ------------------------------------------------------
+        // FIND EDITING CATEGORY
+        // ------------------------------------------------------
+        //
+        // If we are editing an existing product, its category
+        // name is matched against the dynamically loaded
+        // categories.
+
+        String? currentValue;
+
+        if (_selectedCategoryId != null) {
+          final exists = categories.any(
+            (category) => category.id == _selectedCategoryId,
+          );
+
+          if (exists) {
+            currentValue = _selectedCategoryId;
+          }
+        }
+
+        if (currentValue == null && _selectedCategoryName != null) {
+          final matchingCategory = categories.cast<CategoryModel?>().firstWhere(
+            (category) =>
+                category?.name.trim().toLowerCase() ==
+                _selectedCategoryName!.trim().toLowerCase(),
+            orElse: () => null,
+          );
+
+          if (matchingCategory != null) {
+            currentValue = matchingCategory.id;
+
+            // Keep the selected ID synchronized.
+            _selectedCategoryId = matchingCategory.id;
+          }
+        }
+
+        // ------------------------------------------------------
+        // DROPDOWN
+        // ------------------------------------------------------
+
+        return DropdownButtonFormField<String>(
+          value: currentValue,
+
+          decoration: const InputDecoration(
+            labelText: 'Category',
+            prefixIcon: Icon(Icons.category),
+            border: OutlineInputBorder(),
+          ),
+
+          hint: const Text('Select a category'),
+
+          items: categories.map((category) {
+            return DropdownMenuItem<String>(
+              value: category.id,
+              child: Text(category.name),
+            );
+          }).toList(),
+
+          onChanged: productViewModel.isLoading
+              ? null
+              : (value) {
+                  if (value == null) return;
+
+                  final selectedCategory = categories.firstWhere(
+                    (category) => category.id == value,
+                  );
+
+                  setState(() {
+                    _selectedCategoryId = selectedCategory.id;
+
+                    _selectedCategoryName = selectedCategory.name;
+                  });
+                },
+
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select a category';
+            }
+
+            return null;
+          },
+        );
+      },
+    );
+  }
+
+  // ============================================================
   // BUILD
   // ============================================================
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<ProductViewModel>();
+    final productViewModel = context.watch<ProductViewModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -312,7 +506,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
             children: [
               // ==================================================
-              // IMAGE SECTION
+              // PRODUCT IMAGE
               // ==================================================
               Text(
                 'Product Image',
@@ -323,6 +517,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
+
                 child: _buildImagePreview(),
               ),
 
@@ -332,7 +527,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: viewModel.isLoading
+                      onPressed: productViewModel.isLoading
                           ? null
                           : _showImageSourceOptions,
 
@@ -353,11 +548,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     IconButton(
                       tooltip: 'Remove image',
 
-                      onPressed: viewModel.isLoading
+                      onPressed: productViewModel.isLoading
                           ? null
                           : () {
                               setState(() {
                                 _selectedImage = null;
+
                                 _existingImageUrl = null;
                               });
                             },
@@ -502,34 +698,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               const SizedBox(height: 16),
 
               // ==================================================
-              // CATEGORY
+              // DYNAMIC CATEGORY
               // ==================================================
-              DropdownButtonFormField<String>(
-                value: _category,
-
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  prefixIcon: Icon(Icons.category),
-                  border: OutlineInputBorder(),
-                ),
-
-                items: categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-
-                onChanged: viewModel.isLoading
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          setState(() {
-                            _category = value;
-                          });
-                        }
-                      },
-              ),
+              _buildCategoryDropdown(productViewModel),
 
               const SizedBox(height: 30),
 
@@ -538,13 +709,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               // ==================================================
               SizedBox(
                 width: double.infinity,
-
                 height: 52,
 
                 child: ElevatedButton.icon(
-                  onPressed: viewModel.isLoading ? null : _saveProduct,
+                  onPressed: productViewModel.isLoading ? null : _saveProduct,
 
-                  icon: viewModel.isLoading
+                  icon: productViewModel.isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
@@ -553,7 +723,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       : const Icon(Icons.save),
 
                   label: Text(
-                    viewModel.isLoading
+                    productViewModel.isLoading
                         ? 'Saving Product...'
                         : widget.isEditing
                         ? 'Update Product'
