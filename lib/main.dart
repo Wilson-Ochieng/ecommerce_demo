@@ -16,11 +16,13 @@ import 'package:test_app/ui/screens/auth/startup_screen.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
 import 'package:test_app/ui/screens/profilescreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/user_management_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/wishlist_viewmodel.dart';
 
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/category_repository.dart';
@@ -115,6 +117,11 @@ void main() async {
         ChangeNotifierProvider<CategoryViewModel>(
           create: (context) =>
               CategoryViewModel(repository: context.read<CategoryRepository>()),
+        ),
+        ChangeNotifierProvider<CartViewModel>(create: (_) => CartViewModel()),
+
+        ChangeNotifierProvider<WishlistViewModel>(
+          create: (_) => WishlistViewModel(),
         ),
       ],
 

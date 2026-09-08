@@ -32,7 +32,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final productViewModel = context.read<ProductViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: Image.asset(AppConstants.logo)),
+      appBar: AppBar(
+        title: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+
+          child: SizedBox(
+            height: 50,
+            width: 60,
+
+            child: Image.asset(AppConstants.logo, fit: BoxFit.cover),
+          ),
+        ),
+      ),
 
       body: SingleChildScrollView(
         child: Column(

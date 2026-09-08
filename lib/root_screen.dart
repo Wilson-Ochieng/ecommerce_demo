@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/cartscreen%20.dart';
-
 import 'package:test_app/ui/screens/home_screen.dart';
 import 'package:test_app/ui/screens/profilescreen.dart';
-
 import 'package:test_app/ui/screens/searchscreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 
 class RootsScreen extends StatefulWidget {
   static const routName = "/RootsScreen";
+
   const RootsScreen({super.key});
 
   @override
@@ -20,17 +19,46 @@ class RootsScreen extends StatefulWidget {
 }
 
 class _RootsScreenState extends State<RootsScreen> {
-  late List<Widget> screens;
+  late final List<Widget> screens;
+  late final PageController controller;
+
   int currentScreen = 0;
-  late PageController controller;
 
   @override
   void initState() {
-    screens = [HomeScreen(), SearchScreen(), Cartscreen(), Profilescreen()];
-    controller = PageController(initialPage: currentScreen);
-
     super.initState();
+
+    screens = [
+      const HomeScreen(),
+      const SearchScreen(),
+      const CartScreen(),
+      const Profilescreen(),
+    ];
+
+    controller = PageController(initialPage: currentScreen);
   }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  // ============================================================
+  // CHANGE SCREEN
+  // ============================================================
+
+  void _changeScreen(int index) {
+    setState(() {
+      currentScreen = index;
+    });
+
+    controller.jumpToPage(index);
+  }
+
+  // ============================================================
+  // LOGOUT
+  // ============================================================
 
   Future<void> _logout() async {
     final viewModel = context.read<AuthStartupViewModel>();
@@ -51,11 +79,47 @@ class _RootsScreenState extends State<RootsScreen> {
     }
   }
 
+  // ============================================================
+  // DRAWER ITEM
+  // ============================================================
+
+  Widget _drawerItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required int index,
+  }) {
+    final selected = currentScreen == index;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: selected ? Theme.of(context).primaryColor : null,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          color: selected ? Theme.of(context).primaryColor : null,
+        ),
+      ),
+      selected: selected,
+      onTap: () {
+        _changeScreen(index);
+        Navigator.pop(context);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ========================================================
+      // APP BAR
+      // ========================================================
       appBar: AppBar(
         automaticallyImplyLeading: false,
+
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -66,64 +130,97 @@ class _RootsScreenState extends State<RootsScreen> {
             );
           },
         ),
+
+        title: const Text("Shopify"),
       ),
+
+      // ========================================================
+      // DRAWER
+      // ========================================================
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: const Text(
-                'Shopify',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+              child: const Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  'Shopify',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            ListTile(
-              leading: const Icon(IconlyLight.home),
-              title: const Text('Home'),
-              onTap: () {
-                setState(() {
-                  currentScreen = 0;
-                });
-                controller.jumpToPage(0);
-                Navigator.pop(context);
+
+            // HOME
+            _drawerItem(
+              context: context,
+              icon: IconlyLight.home,
+              title: 'Home',
+              index: 0,
+            ),
+
+            // SEARCH
+            _drawerItem(
+              context: context,
+              icon: IconlyLight.search,
+              title: 'Search',
+              index: 1,
+            ),
+
+            // ==================================================
+            // CART DRAWER ITEM
+            // ==================================================
+            Consumer<CartViewModel>(
+              builder: (context, cart, child) {
+                return ListTile(
+                  leading: const Icon(IconlyLight.bag2),
+
+                  title: const Text('Cart'),
+
+                  trailing: cart.itemCount > 0
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${cart.itemCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      : null,
+
+                  onTap: () {
+                    _changeScreen(2);
+                    Navigator.pop(context);
+                  },
+                );
               },
             ),
-            ListTile(
-              leading: const Icon(IconlyLight.search),
-              title: const Text('Search'),
-              onTap: () {
-                setState(() {
-                  currentScreen = 1;
-                });
-                controller.jumpToPage(1);
-                Navigator.pop(context);
-              },
+
+            // PROFILE
+            _drawerItem(
+              context: context,
+              icon: IconlyLight.profile,
+              title: 'Profile',
+              index: 3,
             ),
-            ListTile(
-              leading: const Icon(IconlyLight.bag2),
-              title: const Text('Cart'),
-              onTap: () {
-                setState(() {
-                  currentScreen = 2;
-                });
-                controller.jumpToPage(2);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(IconlyLight.profile),
-              title: const Text('Profile'),
-              onTap: () {
-                setState(() {
-                  currentScreen = 3;
-                });
-                controller.jumpToPage(3);
-                Navigator.pop(context);
-              },
-            ),
+
             const Divider(),
 
+            // LOGOUT
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text(
@@ -132,52 +229,107 @@ class _RootsScreenState extends State<RootsScreen> {
               ),
               onTap: () async {
                 Navigator.pop(context);
-
                 await _logout();
               },
             ),
           ],
         ),
       ),
+
+      // ========================================================
+      // PAGE VIEW
+      // ========================================================
       body: PageView(
-        physics: NeverScrollableScrollPhysics(),
         controller: controller,
+
+        physics: const NeverScrollableScrollPhysics(),
+
         children: screens,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentScreen,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        height: kBottomNavigationBarHeight,
 
-        onDestinationSelected: (index) {
-          setState(() {
-            currentScreen = index;
-          });
-          controller.jumpToPage(index);
+      // ========================================================
+      // BOTTOM NAVIGATION
+      // ========================================================
+      bottomNavigationBar: Consumer<CartViewModel>(
+        builder: (context, cart, child) {
+          return NavigationBar(
+            selectedIndex: currentScreen,
+
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
+            height: kBottomNavigationBarHeight,
+
+            onDestinationSelected: (index) {
+              _changeScreen(index);
+            },
+
+            destinations: [
+              // ==================================================
+              // HOME
+              // ==================================================
+              const NavigationDestination(
+                selectedIcon: Icon(IconlyBold.activity),
+                icon: Icon(IconlyLight.activity),
+                label: "Home",
+              ),
+
+              // ==================================================
+              // SEARCH
+              // ==================================================
+              const NavigationDestination(
+                selectedIcon: Icon(IconlyBold.search),
+                icon: Icon(IconlyLight.search),
+                label: "Search",
+              ),
+
+              // ==================================================
+              // CART WITH BADGE
+              // ==================================================
+              NavigationDestination(
+                selectedIcon: _CartIcon(
+                  icon: IconlyBold.bag2,
+                  count: cart.itemCount,
+                ),
+
+                icon: _CartIcon(icon: IconlyLight.bag2, count: cart.itemCount),
+
+                label: "Cart",
+              ),
+
+              // ==================================================
+              // PROFILE
+              // ==================================================
+              const NavigationDestination(
+                selectedIcon: Icon(IconlyBold.profile),
+                icon: Icon(IconlyLight.profile),
+                label: "Profile",
+              ),
+            ],
+          );
         },
-        destinations: [
-          NavigationDestination(
-            selectedIcon: Icon(IconlyBold.activity),
-            icon: Icon(IconlyLight.activity),
-            label: "Home",
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(IconlyBold.search),
-            icon: Icon(IconlyLight.search),
-            label: "Search",
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(IconlyBold.bag2),
-            icon: Icon(IconlyLight.bag2),
-            label: "Cart",
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(IconlyBold.profile),
-            icon: Icon(IconlyLight.profile),
-            label: "Profile",
-          ),
-        ],
       ),
+    );
+  }
+}
+
+// ================================================================
+// CART ICON WITH BADGE
+// ================================================================
+
+class _CartIcon extends StatelessWidget {
+  final IconData icon;
+  final int count;
+
+  const _CartIcon({required this.icon, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Badge(
+      isLabelVisible: count > 0,
+
+      label: Text(count > 99 ? '99+' : '$count'),
+
+      child: Icon(icon),
     );
   }
 }
