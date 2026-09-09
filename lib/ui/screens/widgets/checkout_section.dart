@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
+import 'package:flutter/material.dart';
+
+import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
+
+import '../checkout_screen.dart';
 
 class CheckoutSection extends StatelessWidget {
   final CartViewModel cart;
@@ -59,12 +64,18 @@ class CheckoutSection extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: cart.isEmpty
+                  ? null
+                  : () {
+                      Navigator.pop(context);
 
-                // TODO:
-                // Navigate to CheckoutScreen
-              },
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CheckoutScreen(),
+                        ),
+                      );
+                    },
               child: const Text(
                 'Proceed to Checkout',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
