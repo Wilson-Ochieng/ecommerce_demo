@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/cartscreen%20.dart';
@@ -159,7 +159,7 @@ class _RootsScreenState extends State<RootsScreen> {
             // HOME
             _drawerItem(
               context: context,
-              icon: IconlyLight.home,
+              icon: Iconsax.home,
               title: 'Home',
               index: 0,
             ),
@@ -167,7 +167,7 @@ class _RootsScreenState extends State<RootsScreen> {
             // SEARCH
             _drawerItem(
               context: context,
-              icon: IconlyLight.search,
+              icon: Iconsax.search_favorite,
               title: 'Search',
               index: 1,
             ),
@@ -178,7 +178,7 @@ class _RootsScreenState extends State<RootsScreen> {
             Consumer<CartViewModel>(
               builder: (context, cart, child) {
                 return ListTile(
-                  leading: const Icon(IconlyLight.bag2),
+                  leading: const Icon(Iconsax.bag2),
 
                   title: const Text('Cart'),
 
@@ -213,7 +213,7 @@ class _RootsScreenState extends State<RootsScreen> {
             // PROFILE
             _drawerItem(
               context: context,
-              icon: IconlyLight.profile,
+              icon: Iconsax.profile,
               title: 'Profile',
               index: 3,
             ),
@@ -268,8 +268,8 @@ class _RootsScreenState extends State<RootsScreen> {
               // HOME
               // ==================================================
               const NavigationDestination(
-                selectedIcon: Icon(IconlyBold.activity),
-                icon: Icon(IconlyLight.activity),
+                selectedIcon: Icon(Iconsax.activity),
+                icon: Icon(Iconsax.activity),
                 label: "Home",
               ),
 
@@ -277,8 +277,8 @@ class _RootsScreenState extends State<RootsScreen> {
               // SEARCH
               // ==================================================
               const NavigationDestination(
-                selectedIcon: Icon(IconlyBold.search),
-                icon: Icon(IconlyLight.search),
+                selectedIcon: Icon(Iconsax.search_favorite),
+                icon: Icon(Iconsax.search_favorite),
                 label: "Search",
               ),
 
@@ -287,11 +287,11 @@ class _RootsScreenState extends State<RootsScreen> {
               // ==================================================
               NavigationDestination(
                 selectedIcon: _CartIcon(
-                  icon: IconlyBold.bag2,
+                  icon: Iconsax.bag2,
                   count: cart.itemCount,
                 ),
 
-                icon: _CartIcon(icon: IconlyLight.bag2, count: cart.itemCount),
+                icon: _CartIcon(icon: Iconsax.bag2, count: cart.itemCount),
 
                 label: "Cart",
               ),
@@ -300,8 +300,8 @@ class _RootsScreenState extends State<RootsScreen> {
               // PROFILE
               // ==================================================
               const NavigationDestination(
-                selectedIcon: Icon(IconlyBold.profile),
-                icon: Icon(IconlyLight.profile),
+                selectedIcon: Icon(Iconsax.profile),
+                icon: Icon(Iconsax.profile),
                 label: "Profile",
               ),
             ],
