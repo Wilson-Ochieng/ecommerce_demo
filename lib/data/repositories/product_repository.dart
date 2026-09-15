@@ -4,13 +4,10 @@ import '../models/product_model.dart';
 class ProductRepository {
   final FirebaseFirestore _firestore;
 
-  ProductRepository({
-    FirebaseFirestore? firestore,
-  }) : _firestore =
-          firestore ?? FirebaseFirestore.instance;
+  ProductRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference get _products =>
-      _firestore.collection('products');
+  CollectionReference get _products => _firestore.collection('products');
 
   // CREATE
   Future<void> addProduct(ProductModel product) async {
@@ -41,9 +38,7 @@ class ProductRepository {
 
   // UPDATE
   Future<void> updateProduct(ProductModel product) async {
-    await _products
-        .doc(product.id)
-        .update(product.toMap());
+    await _products.doc(product.id).update(product.toMap());
   }
 
   // DELETE

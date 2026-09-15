@@ -5,22 +5,15 @@ import '../models/product_model.dart';
 class ProductService {
   final FirebaseFirestore _firestore;
 
-  ProductService({
-    FirebaseFirestore? firestore,
-  }) : _firestore =
-           firestore ?? FirebaseFirestore.instance;
+  ProductService({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  CollectionReference get _products =>
-      _firestore.collection('products');
+  CollectionReference get _products => _firestore.collection('products');
 
   // CREATE PRODUCT
 
-  Future<void> addProduct(
-    ProductModel product,
-  ) async {
-    await _products.doc(product.id).set(
-      product.toMap(),
-    );
+  Future<void> addProduct(ProductModel product) async {
+    await _products.doc(product.id).set(product.toMap());
   }
 
   // READ PRODUCTS
@@ -32,10 +25,8 @@ class ProductService {
         .map(
           (snapshot) => snapshot.docs
               .map(
-                (document) =>
-                    ProductModel.fromMap(
-                  document.data()
-                      as Map<String, dynamic>,
+                (document) => ProductModel.fromMap(
+                  document.data() as Map<String, dynamic>,
                   document.id,
                 ),
               )
@@ -45,19 +36,13 @@ class ProductService {
 
   // UPDATE PRODUCT
 
-  Future<void> updateProduct(
-    ProductModel product,
-  ) async {
-    await _products.doc(product.id).update(
-      product.toMap(),
-    );
+  Future<void> updateProduct(ProductModel product) async {
+    await _products.doc(product.id).update(product.toMap());
   }
 
   // DELETE PRODUCT
 
-  Future<void> deleteProduct(
-    String productId,
-  ) async {
+  Future<void> deleteProduct(String productId) async {
     await _products.doc(productId).delete();
   }
 }

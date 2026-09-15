@@ -37,10 +37,7 @@ class ProductModel {
   }
 
   // Convert Firestore -> model
-  factory ProductModel.fromMap(
-    Map<String, dynamic> map,
-    String id,
-  ) {
+  factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
     return ProductModel(
       id: id,
       name: map['name'] ?? '',

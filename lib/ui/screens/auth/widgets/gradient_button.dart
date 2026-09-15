@@ -17,17 +17,14 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
       height: 52,
 
       decoration: BoxDecoration(
-        gradient: Styles.buttonGradient(
-          isDarkTheme: isDark,
-        ),
+        gradient: Styles.buttonGradient(isDarkTheme: isDark),
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -58,11 +55,7 @@ class GradientButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(
-                      icon,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    Icon(icon, color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                   ],
 

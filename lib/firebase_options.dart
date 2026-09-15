@@ -52,28 +52,30 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDk23sbDh9hGZfUXvjPMrE8gpCs7Ptezv4',
-    appId: '1:277705410335:android:8fe65ae0eb346e1b0c122a',
+    appId: '1:277705410335:android:f80ae8b59c00b1510c122a',
     messagingSenderId: '277705410335',
     projectId: 'ecommerce-app-460ef',
     storageBucket: 'ecommerce-app-460ef.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAoq_yLWArqUKJCgcdX1srMlMnuJK3TE1U',
-    appId: '1:277705410335:ios:0db59b62853a91520c122a',
+    appId: '1:277705410335:ios:2ee17fb7359c6c880c122a',
     messagingSenderId: '277705410335',
     projectId: 'ecommerce-app-460ef',
     storageBucket: 'ecommerce-app-460ef.firebasestorage.app',
-    iosClientId: '277705410335-i2sk161rm9gf9f9snvmr2n9k750mbcmn.apps.googleusercontent.com',
-    iosBundleId: 'com.example.testApp',
+    iosClientId:
+        '277705410335-dbhaekkf8u8gp676re3p62trllm40nd9.apps.googleusercontent.com',
+    iosBundleId: 'com.dukaletuke',
   );
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAoq_yLWArqUKJCgcdX1srMlMnuJK3TE1U',
-    appId: '1:277705410335:ios:0db59b62853a91520c122a',
+    appId: '1:277705410335:ios:0054794fcbe2dd7b0c122a',
     messagingSenderId: '277705410335',
     projectId: 'ecommerce-app-460ef',
     storageBucket: 'ecommerce-app-460ef.firebasestorage.app',
-    iosClientId: '277705410335-i2sk161rm9gf9f9snvmr2n9k750mbcmn.apps.googleusercontent.com',
-    iosBundleId: 'com.example.testApp',
+    iosClientId:
+        '277705410335-5dmr9kmmufh2b9p9o5gomlr22qo7h4ah.apps.googleusercontent.com',
+    iosBundleId: 'com.dukaletuke.macos',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

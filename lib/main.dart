@@ -14,12 +14,13 @@ import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/auth/signup_screen.dart';
 import 'package:test_app/ui/screens/auth/startup_screen.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
-import 'package:test_app/ui/screens/profilescreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/orders_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/profile_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/user_management_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/wishlist_viewmodel.dart';
@@ -123,6 +124,8 @@ void main() async {
         ChangeNotifierProvider<WishlistViewModel>(
           create: (_) => WishlistViewModel(),
         ),
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => OrdersViewModel()),
       ],
 
       child: Consumer<ThemeProvider>(
@@ -143,8 +146,6 @@ void main() async {
               RegisterScreen.routName: (context) => const RegisterScreen(),
 
               RootsScreen.routName: (context) => const RootsScreen(),
-
-              Profilescreen.routName: (context) => const Profilescreen(),
 
               HomeScreen.routName: (context) => const HomeScreen(),
             },

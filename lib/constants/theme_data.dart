@@ -65,19 +65,18 @@ class Styles {
     // COLOR SCHEME
     // ==========================================================
 
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor,
-      brightness: isDarkTheme
-          ? Brightness.dark
-          : Brightness.light,
-    ).copyWith(
-      primary: primaryColor,
-      secondary: secondaryColor,
-      surface: isDarkTheme
-          ? AppColors.darkSurfaceColor
-          : AppColors.lightSurfaceColor,
-      error: AppColors.errorColor,
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: isDarkTheme ? Brightness.dark : Brightness.light,
+        ).copyWith(
+          primary: primaryColor,
+          secondary: secondaryColor,
+          surface: isDarkTheme
+              ? AppColors.darkSurfaceColor
+              : AppColors.lightSurfaceColor,
+          error: AppColors.errorColor,
+        );
 
     return ThemeData(
       // ========================================================
@@ -86,9 +85,7 @@ class Styles {
 
       useMaterial3: true,
 
-      brightness: isDarkTheme
-          ? Brightness.dark
-          : Brightness.light,
+      brightness: isDarkTheme ? Brightness.dark : Brightness.light,
 
       fontFamily: fontFamily,
 
@@ -99,7 +96,6 @@ class Styles {
       // ========================================================
       // APP BAR
       // ========================================================
-
       appBarTheme: AppBarTheme(
         backgroundColor: appBarColor,
 
@@ -118,16 +114,12 @@ class Styles {
           color: Colors.white,
         ),
 
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-          size: 24,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white, size: 24),
       ),
 
       // ========================================================
       // TEXT THEME
       // ========================================================
-
       textTheme: TextTheme(
         displayLarge: TextStyle(
           fontFamily: fontFamily,
@@ -237,25 +229,17 @@ class Styles {
       // ========================================================
       // CARD
       // ========================================================
-
       cardTheme: CardThemeData(
         elevation: 0,
 
         margin: EdgeInsets.zero,
 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            borderRadius,
-          ),
-          side: BorderSide(
-            color: borderColor,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+          side: BorderSide(color: borderColor, width: 1),
         ),
 
-        color: isDarkTheme
-            ? AppColors.darkCardColor
-            : AppColors.lightCardColor,
+        color: isDarkTheme ? AppColors.darkCardColor : AppColors.lightCardColor,
 
         surfaceTintColor: Colors.transparent,
       ),
@@ -263,14 +247,12 @@ class Styles {
       // ========================================================
       // INPUT FIELDS
       // ========================================================
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
 
         fillColor: inputColor,
 
-        contentPadding:
-            const EdgeInsets.symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
@@ -292,65 +274,35 @@ class Styles {
         suffixIconColor: secondaryTextColor,
 
         border: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
-          borderSide: BorderSide(
-            color: borderColor,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
         ),
 
         enabledBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
-          borderSide: BorderSide(
-            color: borderColor,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
-          borderSide: BorderSide(
-            color: primaryColor,
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: primaryColor, width: 2),
         ),
 
         errorBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.errorColor,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: const BorderSide(color: AppColors.errorColor),
         ),
 
-        focusedErrorBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.errorColor,
-            width: 2,
-          ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: const BorderSide(color: AppColors.errorColor, width: 2),
         ),
       ),
 
       // ========================================================
       // ELEVATED BUTTON
       // ========================================================
-
-      elevatedButtonTheme:
-          ElevatedButtonThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
 
@@ -358,24 +310,14 @@ class Styles {
               ? AppColors.darkButtonTextColor
               : AppColors.lightButtonTextColor,
 
-          minimumSize: const Size(
-            double.infinity,
-            buttonHeight,
-          ),
+          minimumSize: const Size(double.infinity, buttonHeight),
 
           elevation: 0,
 
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 14,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
 
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              borderRadius,
-            ),
+            borderRadius: BorderRadius.circular(borderRadius),
           ),
 
           textStyle: const TextStyle(
@@ -389,27 +331,16 @@ class Styles {
       // ========================================================
       // OUTLINED BUTTON
       // ========================================================
-
-      outlinedButtonTheme:
-          OutlinedButtonThemeData(
+      outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
 
-          minimumSize: const Size(
-            double.infinity,
-            buttonHeight,
-          ),
+          minimumSize: const Size(double.infinity, buttonHeight),
 
-          side: BorderSide(
-            color: primaryColor,
-            width: 1.5,
-          ),
+          side: BorderSide(color: primaryColor, width: 1.5),
 
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              borderRadius,
-            ),
+            borderRadius: BorderRadius.circular(borderRadius),
           ),
 
           textStyle: const TextStyle(
@@ -423,7 +354,6 @@ class Styles {
       // ========================================================
       // TEXT BUTTON
       // ========================================================
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
@@ -439,44 +369,29 @@ class Styles {
       // ========================================================
       // DIVIDER
       // ========================================================
-
-      dividerTheme: DividerThemeData(
-        color: borderColor,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: borderColor, thickness: 1),
 
       // ========================================================
       // CHECKBOX
       // ========================================================
-
       checkboxTheme: CheckboxThemeData(
-        fillColor:
-            WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(
-              WidgetState.selected,
-            )) {
-              return primaryColor;
-            }
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return primaryColor;
+          }
 
-            return Colors.transparent;
-          },
-        ),
+          return Colors.transparent;
+        }),
       ),
 
       // ========================================================
       // PROGRESS INDICATOR
       // ========================================================
-
-      progressIndicatorTheme:
-          ProgressIndicatorThemeData(
-        color: primaryColor,
-      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primaryColor),
 
       // ========================================================
       // SNACKBAR
       // ========================================================
-
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
 
@@ -484,18 +399,14 @@ class Styles {
             ? AppColors.darkSurfaceColor
             : AppColors.lightHeadingColor,
 
-        contentTextStyle:
-            const TextStyle(
+        contentTextStyle: const TextStyle(
           fontFamily: fontFamily,
           color: Colors.white,
           fontSize: 14,
         ),
 
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            borderRadius,
-          ),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     );
@@ -505,9 +416,7 @@ class Styles {
   // CARD GRADIENT
   // ============================================================
 
-  static LinearGradient cardGradient({
-    required bool isDarkTheme,
-  }) {
+  static LinearGradient cardGradient({required bool isDarkTheme}) {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
@@ -521,9 +430,7 @@ class Styles {
   // PRIMARY GRADIENT
   // ============================================================
 
-  static LinearGradient primaryGradient({
-    required bool isDarkTheme,
-  }) {
+  static LinearGradient primaryGradient({required bool isDarkTheme}) {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
@@ -537,9 +444,7 @@ class Styles {
   // BUTTON GRADIENT
   // ============================================================
 
-  static LinearGradient buttonGradient({
-    required bool isDarkTheme,
-  }) {
+  static LinearGradient buttonGradient({required bool isDarkTheme}) {
     return LinearGradient(
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,

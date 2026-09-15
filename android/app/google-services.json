@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:277705410335:android:8fe65ae0eb346e1b0c122a",
+        "mobilesdk_app_id": "1:277705410335:android:f80ae8b59c00b1510c122a",
         "android_client_info": {
-          "package_name": "com.example.test_app"
+          "package_name": "com.dukaletuke"
         }
       },
       "oauth_client": [
@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "277705410335-i2sk161rm9gf9f9snvmr2n9k750mbcmn.apps.googleusercontent.com",
+              "client_id": "277705410335-dbhaekkf8u8gp676re3p62trllm40nd9.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.testApp"
+                "bundle_id": "com.dukaletuke"
               }
             }
           ]

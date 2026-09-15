@@ -5,26 +5,20 @@ import 'package:test_app/constants/theme_data.dart';
 import 'package:test_app/ui/screens/auth/widgets/gradient_button.dart';
 import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
 
-
 class PhoneVerificationScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const PhoneVerificationScreen({
-    super.key,
-    required this.phoneNumber,
-  });
+  const PhoneVerificationScreen({super.key, required this.phoneNumber});
 
   @override
   State<PhoneVerificationScreen> createState() =>
       _PhoneVerificationScreenState();
 }
 
-class _PhoneVerificationScreenState
-    extends State<PhoneVerificationScreen> {
+class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _codeController =
-      TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
 
   @override
   void dispose() {
@@ -41,11 +35,9 @@ class _PhoneVerificationScreenState
       return;
     }
 
-    final viewModel =
-        context.read<RegisterViewModel>();
+    final viewModel = context.read<RegisterViewModel>();
 
-    final success =
-        await viewModel.verifyPhoneCode(
+    final success = await viewModel.verifyPhoneCode(
       smsCode: _codeController.text.trim(),
     );
 
@@ -53,11 +45,7 @@ class _PhoneVerificationScreenState
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Phone number verified successfully.',
-          ),
-        ),
+        const SnackBar(content: Text('Phone number verified successfully.')),
       );
 
       // Navigate to the next screen.
@@ -81,11 +69,9 @@ class _PhoneVerificationScreenState
   // ============================================================
 
   Future<void> _resendCode() async {
-    final viewModel =
-        context.read<RegisterViewModel>();
+    final viewModel = context.read<RegisterViewModel>();
 
-    final success =
-        await viewModel.sendPhoneVerificationCode(
+    final success = await viewModel.sendPhoneVerificationCode(
       phoneNumber: widget.phoneNumber,
     );
 
@@ -93,27 +79,17 @@ class _PhoneVerificationScreenState
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'A new verification code has been sent.',
-          ),
-        ),
+        const SnackBar(content: Text('A new verification code has been sent.')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness ==
-            Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Verify Phone Number',
-        ),
-      ),
+      appBar: AppBar(title: const Text('Verify Phone Number')),
 
       body: SafeArea(
         child: Center(
@@ -126,12 +102,9 @@ class _PhoneVerificationScreenState
               padding: const EdgeInsets.all(24),
 
               decoration: BoxDecoration(
-                gradient: Styles.cardGradient(
-                  isDarkTheme: isDark,
-                ),
+                gradient: Styles.cardGradient(isDarkTheme: isDark),
 
-                borderRadius:
-                    BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16),
 
                 border: Border.all(
                   color: isDark
@@ -143,9 +116,7 @@ class _PhoneVerificationScreenState
                   BoxShadow(
                     blurRadius: 20,
                     offset: const Offset(0, 8),
-                    color: Colors.black.withValues(
-                      alpha: 0.08,
-                    ),
+                    color: Colors.black.withValues(alpha: 0.08),
                   ),
                 ],
               ),
@@ -164,10 +135,7 @@ class _PhoneVerificationScreenState
                       height: 70,
 
                       decoration: BoxDecoration(
-                        gradient:
-                            Styles.primaryGradient(
-                          isDarkTheme: isDark,
-                        ),
+                        gradient: Styles.primaryGradient(isDarkTheme: isDark),
 
                         shape: BoxShape.circle,
                       ),
@@ -184,13 +152,10 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // TITLE
                     // ==================================================
-
                     Text(
                       'Verify Your Phone',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
 
                     const SizedBox(height: 10),
@@ -198,13 +163,10 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // DESCRIPTION
                     // ==================================================
-
                     Text(
                       'We sent a 6-digit verification code to:',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
 
                     const SizedBox(height: 8),
@@ -212,18 +174,14 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // PHONE NUMBER
                     // ==================================================
-
                     Text(
                       widget.phoneNumber,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(
-                            color: isDark
-                                ? AppColors.darkPrimary
-                                : AppColors.lightPrimary,
-                          ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.lightPrimary,
+                      ),
                     ),
 
                     const SizedBox(height: 30),
@@ -231,58 +189,41 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // OTP FIELD
                     // ==================================================
-
                     TextFormField(
-                      controller:
-                          _codeController,
+                      controller: _codeController,
 
-                      keyboardType:
-                          TextInputType.number,
+                      keyboardType: TextInputType.number,
 
                       textAlign: TextAlign.center,
 
                       maxLength: 6,
 
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
+                      style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             letterSpacing: 8,
-                            fontWeight:
-                                FontWeight.w700,
+                            fontWeight: FontWeight.w700,
                           ),
 
-                      decoration:
-                          const InputDecoration(
-                        labelText:
-                            'Verification Code',
+                      decoration: const InputDecoration(
+                        labelText: 'Verification Code',
 
-                        hintText:
-                            '000000',
+                        hintText: '000000',
 
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
-                        ),
+                        prefixIcon: Icon(Icons.lock_outline),
 
                         counterText: '',
                       ),
 
                       validator: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Enter the verification code';
                         }
 
-                        if (value.trim().length !=
-                            6) {
+                        if (value.trim().length != 6) {
                           return 'Code must contain 6 digits';
                         }
 
-                        if (!RegExp(
-                          r'^[0-9]+$',
-                        ).hasMatch(
-                          value.trim(),
-                        )) {
+                        if (!RegExp(r'^[0-9]+$').hasMatch(value.trim())) {
                           return 'Enter numbers only';
                         }
 
@@ -295,38 +236,21 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // ERROR MESSAGE
                     // ==================================================
-
                     Consumer<RegisterViewModel>(
-                      builder: (
-                        context,
-                        viewModel,
-                        child,
-                      ) {
-                        if (viewModel
-                                .errorMessage ==
-                            null) {
-                          return const SizedBox
-                              .shrink();
+                      builder: (context, viewModel, child) {
+                        if (viewModel.errorMessage == null) {
+                          return const SizedBox.shrink();
                         }
 
                         return Padding(
-                          padding:
-                              const EdgeInsets.only(
-                            bottom: 16,
-                          ),
+                          padding: const EdgeInsets.only(bottom: 16),
 
                           child: Text(
-                            viewModel
-                                .errorMessage!,
-                            textAlign:
-                                TextAlign.center,
+                            viewModel.errorMessage!,
+                            textAlign: TextAlign.center,
 
                             style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              )
-                                  .colorScheme
-                                  .error,
+                              color: Theme.of(context).colorScheme.error,
 
                               fontSize: 13,
                             ),
@@ -338,19 +262,12 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // VERIFY BUTTON
                     // ==================================================
-
                     Consumer<RegisterViewModel>(
-                      builder: (
-                        context,
-                        viewModel,
-                        child,
-                      ) {
+                      builder: (context, viewModel, child) {
                         return GradientButton(
                           text: 'VERIFY PHONE',
-                          isLoading:
-                              viewModel.isLoading,
-                          onPressed:
-                              _verifyCode,
+                          isLoading: viewModel.isLoading,
+                          onPressed: _verifyCode,
                         );
                       },
                     ),
@@ -360,22 +277,12 @@ class _PhoneVerificationScreenState
                     // ==================================================
                     // RESEND CODE
                     // ==================================================
-
                     Consumer<RegisterViewModel>(
-                      builder: (
-                        context,
-                        viewModel,
-                        child,
-                      ) {
+                      builder: (context, viewModel, child) {
                         return TextButton(
-                          onPressed:
-                              viewModel.isLoading
-                                  ? null
-                                  : _resendCode,
+                          onPressed: viewModel.isLoading ? null : _resendCode,
 
-                          child: const Text(
-                            'Did not receive the code? Resend',
-                          ),
+                          child: const Text('Did not receive the code? Resend'),
                         );
                       },
                     ),
@@ -389,4 +296,3 @@ class _PhoneVerificationScreenState
     );
   }
 }
-

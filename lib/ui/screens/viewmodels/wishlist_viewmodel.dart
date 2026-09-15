@@ -1,36 +1,85 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:test_app/data/models/product_model.dart';
+import 'package:test_app/data/repositories/wishlist_repository.dart';
 
 class WishlistViewModel extends ChangeNotifier {
-  final Set<String> _wishlistIds = {};
+  final WishlistRepository _repository;
 
-  Set<String> get wishlistIds => Set.unmodifiable(_wishlistIds);
+  WishlistViewModel({WishlistRepository? repository})
+    : _repository = repository ?? WishlistRepository();
 
-  bool isWishlisted(String productId) {
-    return _wishlistIds.contains(productId);
+  List<ProductModel> _wishlist = [];
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  List<ProductModel> get wishlist => List.unmodifiable(_wishlist);
+
+  bool get isLoading => _isLoading;
+
+  String? get errorMessage => _errorMessage;
+
+  bool get isEmpty => _wishlist.isEmpty;
+
+  bool contains(String productId) {
+    return _wishlist.any((product) => product.id == productId);
   }
 
-  void toggleWishlist(String productId) {
-    if (_wishlistIds.contains(productId)) {
-      _wishlistIds.remove(productId);
-    } else {
-      _wishlistIds.add(productId);
+  Future<void> loadWishlist(String userId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _wishlist = await _repository.getWishlist(userId);
+    } catch (e) {
+      _errorMessage = 'Failed to load your wishlist.';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addToWishlist({
+    required String userId,
+    required ProductModel product,
+  }) async {
+    if (contains(product.id)) {
+      return;
     }
 
-    notifyListeners();
+    try {
+      await _repository.addToWishlist(userId: userId, product: product);
+
+      _wishlist = [..._wishlist, product];
+
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to add product to wishlist.';
+      notifyListeners();
+    }
   }
 
-  void addToWishlist(String productId) {
-    _wishlistIds.add(productId);
-    notifyListeners();
+  Future<void> removeFromWishlist({
+    required String userId,
+    required String productId,
+  }) async {
+    try {
+      await _repository.removeFromWishlist(
+        userId: userId,
+        productId: productId,
+      );
+
+      _wishlist.removeWhere((product) => product.id == productId);
+
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to remove product from wishlist.';
+      notifyListeners();
+    }
   }
 
-  void removeFromWishlist(String productId) {
-    _wishlistIds.remove(productId);
-    notifyListeners();
-  }
-
-  void clearWishlist() {
-    _wishlistIds.clear();
-    notifyListeners();
+  Future<void> refreshWishlist(String userId) async {
+    await loadWishlist(userId);
   }
 }

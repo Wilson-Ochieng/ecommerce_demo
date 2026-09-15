@@ -4,12 +4,13 @@ import 'package:test_app/root_screen.dart';
 import 'package:test_app/ui/screens/admin/admin_screen.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 
+import '../../../providers/UserProvider.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  static const routName= "/LoginScreen";
+  static const routName = "/LoginScreen";
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -32,72 +33,61 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-Future<void> _login() async {
-  if (!_formKey.currentState!.validate()) {
-    return;
-  }
-
-  final viewModel = context.read<LoginViewModel>();
-
-  final success = await viewModel.login(
-    email: _emailController.text.trim(),
-    password: _passwordController.text,
-  );
-
-  if (!mounted) return;
-
-  if (success) {
-    final user = viewModel.user;
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to retrieve user information.'),
-        ),
-      );
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Login successful'),
-      ),
+    final viewModel = context.read<LoginViewModel>();
+
+    final success = await viewModel.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
 
-    if (user.role == 'admin') {
-      Navigator.pushReplacement(
+    if (!mounted) return;
+
+    if (success) {
+      final user = viewModel.user;
+
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to retrieve user information.')),
+        );
+        return;
+      }
+
+      // Save the logged-in user to UserProvider
+      await context.read<UserProvider>().saveUser(user);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(
-          builder: (context) => const AdminScreen(),
-        ),
-      );
+      ).showSnackBar(const SnackBar(content: Text('Login successful')));
+
+      if (user.role == 'admin') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RootsScreen()),
+        );
+      }
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const RootsScreen(),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(viewModel.errorMessage ?? 'Login failed')),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          viewModel.errorMessage ?? 'Login failed',
-        ),
-      ),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-appBar: AppBar(
-
-  leading: SizedBox.shrink(),
-),
+      appBar: AppBar(leading: SizedBox.shrink()),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

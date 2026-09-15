@@ -5,7 +5,6 @@ import 'package:test_app/data/models/product_model.dart';
 import 'package:test_app/data/repositories/product_repository.dart';
 import 'package:test_app/data/services/cloudinary_service.dart';
 
-
 class ProductViewModel extends ChangeNotifier {
   final ProductRepository _productRepository;
   final CloudinaryService _cloudinaryService;
@@ -13,8 +12,8 @@ class ProductViewModel extends ChangeNotifier {
   ProductViewModel({
     required ProductRepository productRepository,
     required CloudinaryService cloudinaryService,
-  })  : _productRepository = productRepository,
-        _cloudinaryService = cloudinaryService;
+  }) : _productRepository = productRepository,
+       _cloudinaryService = cloudinaryService;
 
   bool _isLoading = false;
 
@@ -24,8 +23,7 @@ class ProductViewModel extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
 
-  Stream<List<ProductModel>> get products =>
-      _productRepository.getProducts();
+  Stream<List<ProductModel>> get products => _productRepository.getProducts();
 
   void _setLoading(bool value) {
     _isLoading = value;
@@ -60,16 +58,10 @@ class ProductViewModel extends ChangeNotifier {
 
       // Upload NEW image to Cloudinary
       if (image != null) {
-        final uploadedUrl =
-            await _cloudinaryService.uploadImage(
-          image,
-        );
+        final uploadedUrl = await _cloudinaryService.uploadImage(image);
 
-        if (uploadedUrl == null ||
-            uploadedUrl.isEmpty) {
-          _setError(
-            'Failed to upload product image.',
-          );
+        if (uploadedUrl == null || uploadedUrl.isEmpty) {
+          _setError('Failed to upload product image.');
 
           return false;
         }
@@ -78,10 +70,7 @@ class ProductViewModel extends ChangeNotifier {
       }
 
       final product = ProductModel(
-        id: id ??
-            DateTime.now()
-                .millisecondsSinceEpoch
-                .toString(),
+        id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
 
         name: name,
 
@@ -95,23 +84,18 @@ class ProductViewModel extends ChangeNotifier {
 
         stock: stock,
 
-        createdAt:
-            createdAt ?? DateTime.now(),
+        createdAt: createdAt ?? DateTime.now(),
       );
 
       if (id == null) {
-        await _productRepository
-            .addProduct(product);
+        await _productRepository.addProduct(product);
       } else {
-        await _productRepository
-            .updateProduct(product);
+        await _productRepository.updateProduct(product);
       }
 
       return true;
     } catch (e) {
-      _setError(
-        'Failed to save product: $e',
-      );
+      _setError('Failed to save product: $e');
 
       return false;
     } finally {
@@ -123,21 +107,16 @@ class ProductViewModel extends ChangeNotifier {
   // ADD
   // ============================================================
 
-  Future<bool> addProduct(
-    ProductModel product,
-  ) async {
+  Future<bool> addProduct(ProductModel product) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      await _productRepository
-          .addProduct(product);
+      await _productRepository.addProduct(product);
 
       return true;
     } catch (e) {
-      _setError(
-        'Failed to add product: $e',
-      );
+      _setError('Failed to add product: $e');
 
       return false;
     } finally {
@@ -149,21 +128,16 @@ class ProductViewModel extends ChangeNotifier {
   // UPDATE
   // ============================================================
 
-  Future<bool> updateProduct(
-    ProductModel product,
-  ) async {
+  Future<bool> updateProduct(ProductModel product) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      await _productRepository
-          .updateProduct(product);
+      await _productRepository.updateProduct(product);
 
       return true;
     } catch (e) {
-      _setError(
-        'Failed to update product: $e',
-      );
+      _setError('Failed to update product: $e');
 
       return false;
     } finally {
@@ -175,21 +149,16 @@ class ProductViewModel extends ChangeNotifier {
   // DELETE
   // ============================================================
 
-  Future<bool> deleteProduct(
-    String productId,
-  ) async {
+  Future<bool> deleteProduct(String productId) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      await _productRepository
-          .deleteProduct(productId);
+      await _productRepository.deleteProduct(productId);
 
       return true;
     } catch (e) {
-      _setError(
-        'Failed to delete product: $e',
-      );
+      _setError('Failed to delete product: $e');
 
       return false;
     } finally {

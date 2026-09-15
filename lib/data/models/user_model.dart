@@ -7,6 +7,9 @@ class UserModel {
   final String phoneNumber;
   final String role;
 
+  // Profile image is optional.
+  final String? userImage;
+
   final bool emailVerified;
   final bool phoneVerified;
 
@@ -18,6 +21,7 @@ class UserModel {
     required this.email,
     required this.phoneNumber,
     required this.role,
+    this.userImage,
     required this.emailVerified,
     required this.phoneVerified,
     required this.createdAt,
@@ -34,6 +38,10 @@ class UserModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'role': role,
+
+      // Store null if no image has been selected.
+      'userImage': userImage,
+
       'emailVerified': emailVerified,
       'phoneVerified': phoneVerified,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -44,9 +52,7 @@ class UserModel {
   // FROM FIRESTORE
   // ============================================================
 
-  factory UserModel.fromMap(
-    Map<String, dynamic> map,
-  ) {
+  factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
       name: map['name'] ?? '',
@@ -54,15 +60,14 @@ class UserModel {
       phoneNumber: map['phoneNumber'] ?? '',
       role: map['role'] ?? 'customer',
 
-      emailVerified:
-          map['emailVerified'] ?? false,
+      userImage: map['userImage'] as String?,
 
-      phoneVerified:
-          map['phoneVerified'] ?? false,
+      emailVerified: map['emailVerified'] ?? false,
+
+      phoneVerified: map['phoneVerified'] ?? false,
 
       createdAt: map['createdAt'] != null
-          ? (map['createdAt'] as Timestamp)
-              .toDate()
+          ? (map['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
     );
   }
@@ -77,6 +82,7 @@ class UserModel {
     String? email,
     String? phoneNumber,
     String? role,
+    String? userImage,
     bool? emailVerified,
     bool? phoneVerified,
     DateTime? createdAt,
@@ -85,15 +91,16 @@ class UserModel {
       uid: uid ?? this.uid,
       name: name ?? this.name,
       email: email ?? this.email,
-      phoneNumber:
-          phoneNumber ?? this.phoneNumber,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
-      emailVerified:
-          emailVerified ?? this.emailVerified,
-      phoneVerified:
-          phoneVerified ?? this.phoneVerified,
-      createdAt:
-          createdAt ?? this.createdAt,
+
+      userImage: userImage ?? this.userImage,
+
+      emailVerified: emailVerified ?? this.emailVerified,
+
+      phoneVerified: phoneVerified ?? this.phoneVerified,
+
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

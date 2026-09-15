@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/cartscreen%20.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
-import 'package:test_app/ui/screens/profilescreen.dart';
+import 'package:test_app/ui/screens/profile/profile_screen.dart';
 import 'package:test_app/ui/screens/searchscreen.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
@@ -32,7 +32,7 @@ class _RootsScreenState extends State<RootsScreen> {
       const HomeScreen(),
       const SearchScreen(),
       const CartScreen(),
-      const Profilescreen(),
+      const ProfileScreen(),
     ];
 
     controller = PageController(initialPage: currentScreen);
