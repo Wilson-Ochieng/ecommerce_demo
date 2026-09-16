@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import 'package:test_app/data/models/product_model.dart';
 import 'package:test_app/providers/ThemeProvider.dart';
+import 'package:test_app/ui/screens/admin/admin_orders_screen.dart';
 import 'package:test_app/ui/screens/admin/category_management_screen.dart';
+
 import 'package:test_app/ui/screens/admin/product_form_screen.dart';
 import 'package:test_app/ui/screens/admin/user_management_screen.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
@@ -69,7 +71,7 @@ class AdminScreen extends StatelessWidget {
   }
 
   // ============================================================
-  // DELETE PRODUCT CONFIRMATION
+  // DELETE PRODUCT
   // ============================================================
 
   Future<void> _confirmDelete(
@@ -124,7 +126,7 @@ class AdminScreen extends StatelessWidget {
   }
 
   // ============================================================
-  // NAVIGATE TO PRODUCT FORM
+  // ADD PRODUCT
   // ============================================================
 
   void _addProduct(BuildContext context) {
@@ -134,6 +136,10 @@ class AdminScreen extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // EDIT PRODUCT
+  // ============================================================
+
   void _editProduct(BuildContext context, ProductModel product) {
     Navigator.push(
       context,
@@ -142,7 +148,7 @@ class AdminScreen extends StatelessWidget {
   }
 
   // ============================================================
-  // NAVIGATE TO CATEGORY MANAGEMENT
+  // CATEGORY MANAGEMENT
   // ============================================================
 
   void _openCategoryManagement(BuildContext context) {
@@ -153,13 +159,24 @@ class AdminScreen extends StatelessWidget {
   }
 
   // ============================================================
-  // NAVIGATE TO USER MANAGEMENT
+  // USER MANAGEMENT
   // ============================================================
 
   void _openUserManagement(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const UserManagementScreen()),
+    );
+  }
+
+  // ============================================================
+  // ORDER MANAGEMENT
+  // ============================================================
+
+  void _openOrderManagement(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AdminOrdersScreen()),
     );
   }
 
@@ -174,9 +191,13 @@ class AdminScreen extends StatelessWidget {
     required String description,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     return Card(
       elevation: 2,
       margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
@@ -184,46 +205,50 @@ class AdminScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
+              // ------------------------------------------------
+              // ICON
+              // ------------------------------------------------
+
               Container(
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.12),
+                  color: primaryColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  size: 28,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                child: Icon(icon, size: 28, color: primaryColor),
               ),
 
               const SizedBox(width: 16),
 
+              // ------------------------------------------------
+              // TITLE + DESCRIPTION
+              // ------------------------------------------------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
                     const SizedBox(height: 5),
 
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
+                    Text(description, style: theme.textTheme.bodySmall),
                   ],
                 ),
               ),
 
-              const Icon(Icons.arrow_forward_ios, size: 18),
+              const SizedBox(width: 12),
+
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -244,9 +269,10 @@ class AdminScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ----------------------------------------------------
+            // --------------------------------------------------
             // PRODUCT IMAGE
-            // ----------------------------------------------------
+            // --------------------------------------------------
+
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
@@ -286,9 +312,9 @@ class AdminScreen extends StatelessWidget {
 
             const SizedBox(width: 16),
 
-            // ----------------------------------------------------
+            // --------------------------------------------------
             // PRODUCT DETAILS
-            // ----------------------------------------------------
+            // --------------------------------------------------
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,9 +356,9 @@ class AdminScreen extends StatelessWidget {
               ),
             ),
 
-            // ----------------------------------------------------
-            // ACTIONS
-            // ----------------------------------------------------
+            // --------------------------------------------------
+            // PRODUCT ACTIONS
+            // --------------------------------------------------
             Column(
               children: [
                 IconButton(
@@ -365,18 +391,23 @@ class AdminScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+
     final productViewModel = context.watch<ProductViewModel>();
 
     final isDarkMode = themeProvider.getIsDarkTHeme;
 
     return Scaffold(
+      // ========================================================
+      // APP BAR
+      // ========================================================
+
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-
-        // --------------------------------------------------------
-        // THEME + LOGOUT
-        // --------------------------------------------------------
         actions: [
+          // ----------------------------------------------------
+          // THEME
+          // ----------------------------------------------------
+
           IconButton(
             tooltip: isDarkMode
                 ? 'Switch to light mode'
@@ -389,6 +420,9 @@ class AdminScreen extends StatelessWidget {
             },
           ),
 
+          // ----------------------------------------------------
+          // LOGOUT
+          // ----------------------------------------------------
           IconButton(
             tooltip: 'Sign Out',
             icon: const Icon(Icons.logout),
@@ -401,9 +435,9 @@ class AdminScreen extends StatelessWidget {
         ],
       ),
 
-      // ==========================================================
-      // ADD PRODUCT
-      // ==========================================================
+      // ========================================================
+      // ADD PRODUCT FAB
+      // ========================================================
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           _addProduct(context);
@@ -412,9 +446,9 @@ class AdminScreen extends StatelessWidget {
         label: const Text('Add Product'),
       ),
 
-      // ==========================================================
+      // ========================================================
       // BODY
-      // ==========================================================
+      // ========================================================
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -425,9 +459,10 @@ class AdminScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ------------------------------------------------
+                  // ==================================================
                   // HEADER
-                  // ------------------------------------------------
+                  // ==================================================
+
                   Text(
                     'Dashboard',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -438,17 +473,18 @@ class AdminScreen extends StatelessWidget {
                   const SizedBox(height: 6),
 
                   Text(
-                    'Manage products, categories and users.',
+                    'Manage products, categories, users and orders.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
 
                   const SizedBox(height: 24),
 
-                  // ------------------------------------------------
+                  // ==================================================
                   // MANAGEMENT OPTIONS
-                  // ------------------------------------------------
+                  // ==================================================
                   if (isDesktop)
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: _managementCard(
@@ -477,11 +513,30 @@ class AdminScreen extends StatelessWidget {
                             },
                           ),
                         ),
+
+                        const SizedBox(width: 16),
+
+                        Expanded(
+                          child: _managementCard(
+                            context: context,
+                            icon: Icons.local_shipping_outlined,
+                            title: 'Orders',
+                            description:
+                                'Verify payments, update order status and dispatch orders.',
+                            onTap: () {
+                              _openOrderManagement(context);
+                            },
+                          ),
+                        ),
                       ],
                     )
                   else
                     Column(
                       children: [
+                        // ------------------------------------------------
+                        // CATEGORIES
+                        // ------------------------------------------------
+
                         _managementCard(
                           context: context,
                           icon: Icons.category_outlined,
@@ -495,6 +550,9 @@ class AdminScreen extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
+                        // ------------------------------------------------
+                        // USERS
+                        // ------------------------------------------------
                         _managementCard(
                           context: context,
                           icon: Icons.people_outline,
@@ -504,14 +562,30 @@ class AdminScreen extends StatelessWidget {
                             _openUserManagement(context);
                           },
                         ),
+
+                        const SizedBox(height: 16),
+
+                        // ------------------------------------------------
+                        // ORDERS
+                        // ------------------------------------------------
+                        _managementCard(
+                          context: context,
+                          icon: Icons.local_shipping_outlined,
+                          title: 'Orders',
+                          description:
+                              'Verify payments, update order status and dispatch orders.',
+                          onTap: () {
+                            _openOrderManagement(context);
+                          },
+                        ),
                       ],
                     ),
 
                   const SizedBox(height: 32),
 
-                  // ------------------------------------------------
+                  // ==================================================
                   // PRODUCTS HEADER
-                  // ------------------------------------------------
+                  // ==================================================
                   Row(
                     children: [
                       Expanded(
@@ -534,15 +608,15 @@ class AdminScreen extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // ------------------------------------------------
-                  // PRODUCT STREAM
-                  // ------------------------------------------------
+                  // ==================================================
+                  // PRODUCTS
+                  // ==================================================
                   StreamBuilder<List<ProductModel>>(
                     stream: productViewModel.products,
                     builder: (context, snapshot) {
-                      // --------------------------------------------
+                      // ------------------------------------------------
                       // LOADING
-                      // --------------------------------------------
+                      // ------------------------------------------------
 
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Padding(
@@ -551,9 +625,9 @@ class AdminScreen extends StatelessWidget {
                         );
                       }
 
-                      // --------------------------------------------
+                      // ------------------------------------------------
                       // ERROR
-                      // --------------------------------------------
+                      // ------------------------------------------------
 
                       if (snapshot.hasError) {
                         return Card(
@@ -587,9 +661,9 @@ class AdminScreen extends StatelessWidget {
 
                       final products = snapshot.data ?? [];
 
-                      // --------------------------------------------
+                      // ------------------------------------------------
                       // EMPTY
-                      // --------------------------------------------
+                      // ------------------------------------------------
 
                       if (products.isEmpty) {
                         return Card(
@@ -639,9 +713,9 @@ class AdminScreen extends StatelessWidget {
                         );
                       }
 
-                      // --------------------------------------------
-                      // PRODUCTS
-                      // --------------------------------------------
+                      // ------------------------------------------------
+                      // PRODUCT LIST
+                      // ------------------------------------------------
 
                       return ListView.builder(
                         shrinkWrap: true,
@@ -656,7 +730,9 @@ class AdminScreen extends StatelessWidget {
                     },
                   ),
 
-                  // Extra space above FAB
+                  // ==================================================
+                  // EXTRA SPACE ABOVE FAB
+                  // ==================================================
                   const SizedBox(height: 80),
                 ],
               ),

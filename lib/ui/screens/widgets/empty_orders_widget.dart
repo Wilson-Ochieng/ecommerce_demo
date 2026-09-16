@@ -52,7 +52,6 @@ class EmptyOrdersWidget extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => RootsScreen()),
                 );
-
               },
               icon: const Icon(Icons.shopping_bag_outlined),
               label: const Text('Start Shopping'),

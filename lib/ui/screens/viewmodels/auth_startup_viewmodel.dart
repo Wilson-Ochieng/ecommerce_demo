@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+
 import 'package:test_app/data/models/user_model.dart';
 import 'package:test_app/data/repositories/auth_repository.dart';
+import 'package:test_app/providers/UserProvider.dart';
 
 class AuthStartupViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
+  final UserProvider _userProvider;
 
-  AuthStartupViewModel({AuthRepository? authRepository})
-    : _authRepository = authRepository ?? AuthRepository();
+  AuthStartupViewModel({
+    AuthRepository? authRepository,
+    UserProvider? userProvider,
+  }) : _authRepository = authRepository ?? AuthRepository(),
+       _userProvider = userProvider ?? UserProvider();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -35,10 +41,20 @@ class AuthStartupViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _user = await _authRepository.getCurrentUser();
+      final user = await _authRepository.getCurrentUser();
+
+      _user = user;
+
+      if (user != null) {
+        await _userProvider.saveUser(user);
+      } else {
+        await _userProvider.clearUser();
+      }
     } catch (e) {
       _errorMessage = _handleError(e);
       _user = null;
+
+      await _userProvider.clearUser();
     } finally {
       _isLoading = false;
 
@@ -57,11 +73,11 @@ class AuthStartupViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Sign out from Firebase
       await _authRepository.logout();
 
-      // Clear UserModel from memory
       _user = null;
+
+      await _userProvider.clearUser();
 
       return true;
     } catch (e) {
@@ -74,6 +90,10 @@ class AuthStartupViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ============================================================
+  // ERROR HANDLING
+  // ============================================================
 
   String _handleError(Object error) {
     return error.toString().replaceFirst('Exception: ', '');

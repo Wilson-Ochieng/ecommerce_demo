@@ -6,13 +6,9 @@ class UserModel {
   final String email;
   final String phoneNumber;
   final String role;
-
-  // Profile image is optional.
   final String? userImage;
-
   final bool emailVerified;
   final bool phoneVerified;
-
   final DateTime createdAt;
 
   UserModel({
@@ -28,7 +24,7 @@ class UserModel {
   });
 
   // ============================================================
-  // TO FIRESTORE
+  // FIRESTORE
   // ============================================================
 
   Map<String, dynamic> toMap() {
@@ -38,13 +34,28 @@ class UserModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'role': role,
-
-      // Store null if no image has been selected.
       'userImage': userImage,
-
       'emailVerified': emailVerified,
       'phoneVerified': phoneVerified,
       'createdAt': Timestamp.fromDate(createdAt),
+    };
+  }
+
+  // ============================================================
+  // LOCAL STORAGE / JSON
+  // ============================================================
+
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': uid,
+      'name': name,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'role': role,
+      'userImage': userImage,
+      'emailVerified': emailVerified,
+      'phoneVerified': phoneVerified,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
@@ -59,15 +70,31 @@ class UserModel {
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
       role: map['role'] ?? 'customer',
-
       userImage: map['userImage'] as String?,
-
       emailVerified: map['emailVerified'] ?? false,
-
       phoneVerified: map['phoneVerified'] ?? false,
-
-      createdAt: map['createdAt'] != null
+      createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
+    );
+  }
+
+  // ============================================================
+  // FROM LOCAL JSON
+  // ============================================================
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      uid: json['uid'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      role: json['role'] ?? 'customer',
+      userImage: json['userImage'] as String?,
+      emailVerified: json['emailVerified'] ?? false,
+      phoneVerified: json['phoneVerified'] ?? false,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
     );
   }
@@ -93,13 +120,9 @@ class UserModel {
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
-
       userImage: userImage ?? this.userImage,
-
       emailVerified: emailVerified ?? this.emailVerified,
-
       phoneVerified: phoneVerified ?? this.phoneVerified,
-
       createdAt: createdAt ?? this.createdAt,
     );
   }

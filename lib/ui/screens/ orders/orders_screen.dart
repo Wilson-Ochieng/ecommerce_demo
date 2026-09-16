@@ -19,14 +19,41 @@ class _OrdersScreenState extends State<OrdersScreen> {
   void initState() {
     super.initState();
 
+    // Load orders after the screen has been built.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrdersViewModel>().loadOrders(widget.userId);
+      if (widget.userId.isNotEmpty) {
+        context.read<OrdersViewModel>().loadOrders(widget.userId);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // =========================================================
+    // CHECK USER ID
+    // =========================================================
+
+    if (widget.userId.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'My Orders',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+        ),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Unable to load orders.\n'
+              'No logged-in user was found.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -37,19 +64,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
         centerTitle: true,
       ),
 
+      // =======================================================
+      // ORDERS BODY
+      // =======================================================
       body: Consumer<OrdersViewModel>(
         builder: (context, viewModel, child) {
-          // =========================================================
+          // =====================================================
           // LOADING
-          // =========================================================
+          // =====================================================
 
           if (viewModel.isLoading && viewModel.orders.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // =========================================================
+          // =====================================================
           // ERROR
-          // =========================================================
+          // =====================================================
 
           if (viewModel.errorMessage != null && viewModel.orders.isEmpty) {
             return Center(
@@ -70,11 +100,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
                     const SizedBox(height: 20),
 
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: () {
                         viewModel.loadOrders(widget.userId);
                       },
-                      child: const Text('Try Again'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try Again'),
                     ),
                   ],
                 ),
@@ -82,17 +113,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
             );
           }
 
-          // =========================================================
+          // =====================================================
           // EMPTY
-          // =========================================================
+          // =====================================================
 
-          if (viewModel.isEmpty) {
+          if (viewModel.orders.isEmpty) {
             return const EmptyOrdersWidget();
           }
 
-          // =========================================================
+          // =====================================================
           // ORDERS
-          // =========================================================
+          // =====================================================
 
           return RefreshIndicator(
             onRefresh: () {
@@ -100,6 +131,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
             },
 
             child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
 
               itemCount: viewModel.orders.length,

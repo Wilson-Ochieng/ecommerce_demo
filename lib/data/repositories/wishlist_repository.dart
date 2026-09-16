@@ -1,24 +1,74 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:test_app/data/models/product_model.dart';
 
 class WishlistRepository {
-  Future<List<ProductModel>> getWishlist(String userId) async {
-    // TODO: Replace with Firestore implementation.
-    await Future.delayed(const Duration(milliseconds: 500));
+  final FirebaseFirestore _firestore;
 
-    return [];
+  WishlistRepository({FirebaseFirestore? firestore})
+    : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  // ============================================================
+  // WISHLIST COLLECTION
+  // ============================================================
+
+  CollectionReference<Map<String, dynamic>> _wishlistCollection(String userId) {
+    return _firestore.collection('users').doc(userId).collection('wishlist');
   }
+
+  // ============================================================
+  // GET WISHLIST
+  // ============================================================
+
+  Future<List<ProductModel>> getWishlist(String userId) async {
+    final snapshot = await _wishlistCollection(userId).get();
+
+    return snapshot.docs.map((doc) {
+      return ProductModel.fromMap(doc.data(), doc.id);
+    }).toList();
+  }
+
+  // ============================================================
+  // ADD TO WISHLIST
+  // ============================================================
 
   Future<void> addToWishlist({
     required String userId,
     required ProductModel product,
   }) async {
-    // TODO: Save wishlist item to Firestore.
+    await _wishlistCollection(userId).doc(product.id).set({
+      'id': product.id,
+      'name': product.name,
+      'description': product.description,
+      'price': product.price,
+      'imageUrl': product.imageUrl,
+      'category': product.category,
+      'stock': product.stock,
+      'createdAt': Timestamp.fromDate(product.createdAt),
+    });
   }
+
+  // ============================================================
+  // REMOVE FROM WISHLIST
+  // ============================================================
 
   Future<void> removeFromWishlist({
     required String userId,
     required String productId,
   }) async {
-    // TODO: Remove wishlist item from Firestore.
+    await _wishlistCollection(userId).doc(productId).delete();
+  }
+
+  // ============================================================
+  // CHECK WISHLIST
+  // ============================================================
+
+  Future<bool> isInWishlist({
+    required String userId,
+    required String productId,
+  }) async {
+    final document = await _wishlistCollection(userId).doc(productId).get();
+
+    return document.exists;
   }
 }

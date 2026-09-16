@@ -21,7 +21,10 @@ class ProductModel {
     required this.createdAt,
   });
 
-  // Convert model -> Firestore
+  // ============================================================
+  // MODEL -> FIRESTORE
+  // ============================================================
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -30,13 +33,14 @@ class ProductModel {
       'imageUrl': imageUrl,
       'category': category,
       'stock': stock,
-
-      // DateTime -> Timestamp
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
-  // Convert Firestore -> model
+  // ============================================================
+  // FIRESTORE -> MODEL
+  // ============================================================
+
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
     return ProductModel(
       id: id,
@@ -47,8 +51,9 @@ class ProductModel {
       category: map['category'] ?? '',
       stock: (map['stock'] ?? 0).toInt(),
 
-      // Timestamp -> DateTime
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: map['createdAt'] is Timestamp
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
     );
   }
 }

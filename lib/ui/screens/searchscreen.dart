@@ -513,6 +513,9 @@ class _ProductSearchCard extends StatelessWidget {
                     // =================================================
                     // WISHLIST BUTTON
                     // =================================================
+                    // =================================================
+                    // WISHLIST BUTTON
+                    // =================================================
                     Positioned(
                       top: 8,
                       right: 8,
@@ -535,14 +538,12 @@ class _ProductSearchCard extends StatelessWidget {
                               ? null
                               : () async {
                                   if (isWishlisted) {
-                                    await wishlist?.removeFromWishlist(
+                                    await wishlist.removeFromWishlist(
                                       userId: user.uid,
                                       productId: product.id,
                                     );
 
-                                    if (!context.mounted) {
-                                      return;
-                                    }
+                                    if (!context.mounted) return;
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -556,9 +557,7 @@ class _ProductSearchCard extends StatelessWidget {
                                       product: product,
                                     );
 
-                                    if (!context.mounted) {
-                                      return;
-                                    }
+                                    if (!context.mounted) return;
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -622,7 +621,9 @@ class _ProductSearchCard extends StatelessWidget {
                         height: 38,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shadowColor: Colors.transparent,
@@ -649,20 +650,21 @@ class _ProductSearchCard extends StatelessWidget {
                           onPressed: product.stock <= 0
                               ? null
                               : () {
-                            cart.addToCart(product);
+                                  cart.addToCart(product);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                duration: const Duration(milliseconds: 800),
-                                content: Text(
-                                  '${product.name} added to cart',
-                                ),
-                              ),
-                            );
-                          },
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      duration: const Duration(
+                                        milliseconds: 800,
+                                      ),
+                                      content: Text(
+                                        '${product.name} added to cart',
+                                      ),
+                                    ),
+                                  );
+                                },
                         ),
-                      ),    // =========================================
-
+                      ), // =========================================
                     ],
                   ),
                 ),

@@ -14,6 +14,7 @@ import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/auth/signup_screen.dart';
 import 'package:test_app/ui/screens/auth/startup_screen.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
+import 'package:test_app/ui/screens/viewmodels/admin_orders_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
@@ -34,7 +35,9 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final userProvider = UserProvider();
 
+  await userProvider.loadSavedUser();
   runApp(
     MultiProvider(
       providers: [
@@ -46,7 +49,7 @@ void main() async {
         // ==========================================================
         // USER PROVIDER
         // ==========================================================
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider.value(value: userProvider),
 
         // ==========================================================
         // AUTH REPOSITORY
@@ -72,9 +75,10 @@ void main() async {
         // ==========================================================
         // AUTH STARTUP VIEW MODEL
         // ==========================================================
-        ChangeNotifierProvider<AuthStartupViewModel>(
+        ChangeNotifierProvider(
           create: (context) => AuthStartupViewModel(
             authRepository: context.read<AuthRepository>(),
+            userProvider: context.read<UserProvider>(),
           ),
         ),
 
@@ -126,6 +130,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => OrdersViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminOrdersViewModel()),
       ],
 
       child: Consumer<ThemeProvider>(

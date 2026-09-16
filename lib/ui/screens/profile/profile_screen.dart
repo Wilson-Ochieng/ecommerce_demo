@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_app/ui/screens/%20orders/orders_screen.dart';
+import 'package:test_app/ui/screens/wishlist/wishlist_screen.dart';
 
 import '../../../providers/UserProvider.dart';
 import '../widgets/profile_header.dart';
@@ -17,16 +18,12 @@ class ProfileScreen extends StatelessWidget {
 
     if (user == null) {
       return const Scaffold(
-        body: Center(
-          child: Text('No profile information available.'),
-        ),
+        body: Center(child: Text('No profile information available.')),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-      ),
+      appBar: AppBar(title: const Text('My Profile')),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -60,9 +57,11 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.shopping_bag_outlined,
                   title: 'My Orders',
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => OrdersScreen(userId: user.uid,)),
+                      MaterialPageRoute(
+                        builder: (context) => OrdersScreen(userId: user.uid),
+                      ),
                     );
 
                     // Navigate to orders
@@ -73,6 +72,12 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.favorite_border,
                   title: 'Wishlist',
                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WishlistScreen(userId: user.uid),
+                      ),
+                    );
                     // Navigate to wishlist
                   },
                 ),
@@ -85,32 +90,24 @@ class ProfileScreen extends StatelessWidget {
                 ProfileMenuTile(
                   icon: Icons.email_outlined,
                   title: 'Email Verification',
-                  subtitle: user.emailVerified
-                      ? 'Verified'
-                      : 'Not verified',
+                  subtitle: user.emailVerified ? 'Verified' : 'Not verified',
                   trailing: Icon(
                     user.emailVerified
                         ? Icons.check_circle
                         : Icons.warning_amber,
-                    color: user.emailVerified
-                        ? Colors.green
-                        : Colors.orange,
+                    color: user.emailVerified ? Colors.green : Colors.orange,
                   ),
                 ),
 
                 ProfileMenuTile(
                   icon: Icons.phone_outlined,
                   title: 'Phone Verification',
-                  subtitle: user.phoneVerified
-                      ? 'Verified'
-                      : 'Not verified',
+                  subtitle: user.phoneVerified ? 'Verified' : 'Not verified',
                   trailing: Icon(
                     user.phoneVerified
                         ? Icons.check_circle
                         : Icons.warning_amber,
-                    color: user.phoneVerified
-                        ? Colors.green
-                        : Colors.orange,
+                    color: user.phoneVerified ? Colors.green : Colors.orange,
                   ),
                 ),
               ],

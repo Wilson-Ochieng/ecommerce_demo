@@ -1,178 +1,284 @@
-import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../data/models/mpesa_repository.dart';
-import '../../../data/models/payment_model.dart';
-
-import '../viewmodels/cart_viewmodel.dart';
+import 'cart_viewmodel.dart';
 
 enum PaymentMethod { mpesa, cash }
 
 class CheckoutViewModel extends ChangeNotifier {
-  final MpesaRepository _mpesaRepository;
+final MpesaRepository _mpesaRepository;
 
-  CheckoutViewModel({MpesaRepository? mpesaRepository})
-    : _mpesaRepository = mpesaRepository ?? MpesaRepository();
+CheckoutViewModel({MpesaRepository? mpesaRepository})
+    : _mpesaRepository =
+mpesaRepository ?? MpesaRepository();
 
-  PaymentMethod _paymentMethod = PaymentMethod.mpesa;
+PaymentMethod _paymentMethod = PaymentMethod.mpesa;
 
-  PaymentMethod get paymentMethod => _paymentMethod;
+bool _isLoading = false;
+String _message = '';
 
-  String _message = '';
+String? _checkoutRequestId;
 
-  String get message => _message;
+PaymentMethod get paymentMethod => _paymentMethod;
+bool get isLoading => _isLoading;
+String get message => _message;
+String? get checkoutRequestId => _checkoutRequestId;
 
-  bool _isLoading = false;
+// ----------------------------------------------------------
+// SELECT PAYMENT METHOD
+// ----------------------------------------------------------
 
-  bool get isLoading => _isLoading;
+void selectPaymentMethod(PaymentMethod method) {
+_paymentMethod = method;
+_message = '';
+notifyListeners();
+}
 
-  PaymentModel? _payment;
+// ----------------------------------------------------------
+// CHECKOUT
+// ----------------------------------------------------------
 
-  PaymentModel? get payment => _payment;
+Future<bool> checkout({
+required CartViewModel cart,
+required String phoneNumber,
+required String orderId,
+required String customerName,
+required String customerEmail,
+}) async {
+// --------------------------------------------------------
+// CART VALIDATION
+// --------------------------------------------------------
 
-  Timer? _statusTimer;
+if (cart.isEmpty) {
+_message = 'Your cart is empty.';
+notifyListeners();
+return false;
+}
 
-  void selectPaymentMethod(PaymentMethod method) {
-    _paymentMethod = method;
-    _message = '';
-    notifyListeners();
-  }
+// --------------------------------------------------------
+// ORDER ID VALIDATION
+// --------------------------------------------------------
 
-  Future<void> checkout({
-    required CartViewModel cart,
-    required String phoneNumber,
-  }) async {
-    if (cart.isEmpty) {
-      _message = 'Your cart is empty.';
-      notifyListeners();
-      return;
-    }
+if (orderId.trim().isEmpty) {
+_message = 'Order ID is required.';
+notifyListeners();
+return false;
+}
 
-    if (_paymentMethod == PaymentMethod.cash) {
-      await _processCash(cart);
-      return;
-    }
+// --------------------------------------------------------
+// CUSTOMER NAME VALIDATION
+// --------------------------------------------------------
 
-    await _processMpesa(cart: cart, phoneNumber: phoneNumber);
-  }
+if (customerName.trim().isEmpty) {
+_message = 'Customer name is required.';
+notifyListeners();
+return false;
+}
 
-  Future<void> _processCash(CartViewModel cart) async {
-    _isLoading = true;
-    _message = 'Processing cash payment...';
-    notifyListeners();
+// --------------------------------------------------------
+// CUSTOMER EMAIL VALIDATION
+// --------------------------------------------------------
 
-    await Future.delayed(const Duration(milliseconds: 500));
+if (customerEmail.trim().isEmpty) {
+_message = 'Customer email is required.';
+notifyListeners();
+return false;
+}
 
-    _isLoading = false;
+_isLoading = true;
+_message = '';
+_checkoutRequestId = null;
 
-    _message = 'Order placed successfully. Payment will be made in cash.';
+notifyListeners();
 
-    notifyListeners();
-  }
+try {
+// ------------------------------------------------------
+// CASH PAYMENT
+// ------------------------------------------------------
 
-  Future<void> _processMpesa({
-    required CartViewModel cart,
-    required String phoneNumber,
-  }) async {
-    _isLoading = true;
-    _message = 'Sending M-Pesa payment request...';
-    notifyListeners();
+if (_paymentMethod == PaymentMethod.cash) {
+_message =
+'Order ready. Payment will be made in cash.';
 
-    try {
-      final orderId = 'ORD-${DateTime.now().millisecondsSinceEpoch}';
+return true;
+}
 
-      final result = await _mpesaRepository.initiatePayment(
-        phoneNumber: phoneNumber,
-        amount: cart.total,
-        orderId: orderId,
-      );
+// ------------------------------------------------------
+// M-PESA PHONE VALIDATION
+// ------------------------------------------------------
 
-      final data = Map<String, dynamic>.from(result['data']);
+final phone = phoneNumber.trim();
 
-      final checkoutRequestId = data['checkoutRequestId'];
+if (phone.isEmpty) {
+_message =
+'Please enter your M-Pesa phone number.';
 
-      if (checkoutRequestId == null) {
-        _isLoading = false;
-        _message = result['message'] ?? 'Unable to initiate payment.';
-        notifyListeners();
-        return;
-      }
+return false;
+}
 
-      _message =
-          data['customerMessage'] ?? 'STK Push sent. Enter your M-Pesa PIN.';
+if (!RegExp(r'^2547\d{8}$').hasMatch(phone)) {
+_message =
+'Enter a valid M-Pesa number e.g. 254712345678.';
 
-      notifyListeners();
+return false;
+}
 
-      _startPaymentStatusPolling(checkoutRequestId);
-    } catch (e) {
-      _isLoading = false;
-      _message = 'Unable to initiate M-Pesa payment. Please try again.';
-      notifyListeners();
-    }
-  }
+// ------------------------------------------------------
+// M-PESA STK PUSH
+// ------------------------------------------------------
 
-  void _startPaymentStatusPolling(String checkoutRequestId) {
-    _statusTimer?.cancel();
+_message =
+'Sending M-Pesa payment request...';
 
-    int attempts = 0;
+notifyListeners();
 
-    _statusTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      attempts++;
+final response =
+await _mpesaRepository.stkPush(
+phoneNumber: phone,
+amount: cart.total,
+orderId: orderId.trim(),
+customerName: customerName.trim(),
+customerEmail: customerEmail.trim(),
+);
 
-      if (attempts > 20) {
-        timer.cancel();
+// ------------------------------------------------------
+// STK PUSH FAILED
+// ------------------------------------------------------
 
-        _isLoading = false;
-        _message =
-            'Payment confirmation timed out. Please check your M-Pesa messages.';
+if (!response.success) {
+_message = response.message.isNotEmpty
+? response.message
+    : 'Failed to initiate M-Pesa payment.';
 
-        notifyListeners();
-        return;
-      }
+return false;
+}
 
-      try {
-        final payment = await _mpesaRepository.checkPaymentStatus(
-          checkoutRequestId,
-        );
+// ------------------------------------------------------
+// SAVE CHECKOUT REQUEST ID
+// ------------------------------------------------------
 
-        _payment = payment;
+_checkoutRequestId =
+response.checkoutRequestId;
 
-        if (payment.isPaid) {
-          timer.cancel();
+if (_checkoutRequestId == null ||
+_checkoutRequestId!.isEmpty) {
+_message =
+'M-Pesa checkout request was not created.';
 
-          _isLoading = false;
-          _message = payment.message;
+return false;
+}
 
-          notifyListeners();
+// ------------------------------------------------------
+// WAIT FOR M-PESA PAYMENT CONFIRMATION
+// ------------------------------------------------------
 
-          return;
-        }
+_message =
+'STK Push sent. Please enter your M-Pesa PIN on your phone.';
 
-        if (payment.isFailed) {
-          timer.cancel();
+notifyListeners();
 
-          _isLoading = false;
-          _message = payment.message;
+final paymentSuccessful =
+await _waitForPaymentConfirmation(
+_checkoutRequestId!,
+);
 
-          notifyListeners();
+// ------------------------------------------------------
+// PAYMENT NOT CONFIRMED
+// ------------------------------------------------------
 
-          return;
-        }
-      } catch (e) {
-        // Continue polling.
-      }
-    });
-  }
+if (!paymentSuccessful) {
+_message =
+'M-Pesa payment was not completed or timed out.';
 
-  void disposePolling() {
-    _statusTimer?.cancel();
-    _statusTimer = null;
-  }
+return false;
+}
 
-  @override
-  void dispose() {
-    _statusTimer?.cancel();
-    super.dispose();
-  }
+// ------------------------------------------------------
+// PAYMENT CONFIRMED
+// ------------------------------------------------------
+
+_message =
+'M-Pesa payment confirmed successfully.';
+
+notifyListeners();
+
+return true;
+} catch (e) {
+debugPrint(
+'Checkout error: $e',
+);
+
+_message =
+'Payment failed. Please try again.';
+
+return false;
+} finally {
+_isLoading = false;
+notifyListeners();
+}
+}
+
+// ----------------------------------------------------------
+// WAIT FOR M-PESA PAYMENT CONFIRMATION
+// ----------------------------------------------------------
+
+Future<bool> _waitForPaymentConfirmation(
+String checkoutRequestId,
+) async {
+const maxAttempts = 12;
+const delay = Duration(seconds: 5);
+
+for (
+int attempt = 0;
+attempt < maxAttempts;
+attempt++
+) {
+try {
+final result =
+await _mpesaRepository.checkPaymentStatus(
+checkoutRequestId,
+);
+
+debugPrint(
+'M-Pesa status attempt '
+'${attempt + 1}: ${result.status}',
+);
+
+// ----------------------------------------------------
+// PAYMENT SUCCESSFUL
+// ----------------------------------------------------
+
+if (result.isSuccessful) {
+return true;
+}
+
+// ----------------------------------------------------
+// PAYMENT FAILED
+// ----------------------------------------------------
+
+if (result.isFailed) {
+return false;
+}
+} catch (e) {
+debugPrint(
+'Payment status check error: $e',
+);
+}
+
+// ------------------------------------------------------
+// WAIT BEFORE NEXT CHECK
+// ------------------------------------------------------
+
+if (attempt < maxAttempts - 1) {
+await Future.delayed(delay);
+}
+}
+
+// --------------------------------------------------------
+// PAYMENT TIMEOUT
+// --------------------------------------------------------
+
+return false;
+}
 }

@@ -4,17 +4,13 @@ import 'package:test_app/data/models/user_model.dart';
 class ProfileHeader extends StatelessWidget {
   final UserModel user;
 
-  const ProfileHeader({
-    super.key,
-    required this.user,
-  });
+  const ProfileHeader({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final hasImage =
-        user.userImage != null && user.userImage!.isNotEmpty;
+    final hasImage = user.userImage != null && user.userImage!.isNotEmpty;
 
     return Container(
       width: double.infinity,
@@ -23,16 +19,10 @@ class ProfileHeader extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 48,
-            backgroundColor:
-            theme.colorScheme.primary.withOpacity(0.1),
-            backgroundImage:
-            hasImage ? NetworkImage(user.userImage!) : null,
+            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+            backgroundImage: hasImage ? NetworkImage(user.userImage!) : null,
             child: !hasImage
-                ? Icon(
-              Icons.person,
-              size: 50,
-              color: theme.colorScheme.primary,
-            )
+                ? Icon(Icons.person, size: 50, color: theme.colorScheme.primary)
                 : null,
           ),
 
@@ -40,30 +30,21 @@ class ProfileHeader extends StatelessWidget {
 
           Text(
             user.name,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 5),
 
           Text(
             user.email,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
 
           const SizedBox(height: 4),
 
           Text(
             user.phoneNumber,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
         ],
       ),
