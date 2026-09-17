@@ -373,4 +373,20 @@ class AuthRepository {
   Future<void> deleteUserProfile(String uid) async {
     await _firestore.collection('users').doc(uid).delete();
   }
+  // ============================================================
+// UPDATE FCM TOKEN
+// ============================================================
+
+  Future<void> updateFcmToken({
+    required String uid,
+    required String token,
+  }) async {
+    await _firestore.collection('users').doc(uid).update({
+      'fcmToken': token,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+
+
 }
