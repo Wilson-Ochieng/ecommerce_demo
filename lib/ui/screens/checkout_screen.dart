@@ -124,6 +124,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       orderId: orderId.toString(),
       customerName: user.name,
       customerEmail: user.email,
+      customerUid: user.uid,
     );
 
     if (!context.mounted) return;

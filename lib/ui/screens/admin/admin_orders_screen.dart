@@ -68,9 +68,11 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
     );
   }
 
-  Widget _orderCard(BuildContext context,
-      AdminOrdersViewModel viewModel,
-      OrderModel order,) {
+  Widget _orderCard(
+    BuildContext context,
+    AdminOrdersViewModel viewModel,
+    OrderModel order,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -119,7 +121,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
             Text(
               'Payment: ${order.paymentMethod} • '
-                  '${order.paymentStatus}',
+              '${order.paymentStatus}',
             ),
 
             const SizedBox(height: 16),
@@ -129,14 +131,13 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             const SizedBox(height: 8),
 
             ...order.items.map(
-                  (item) =>
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.inventory_2_outlined),
-                    title: Text(item.product.name),
-                    subtitle: Text('Quantity: ${item.quantity}'),
-                    trailing: Text('KES ${item.subtotal.toStringAsFixed(2)}'),
-                  ),
+              (item) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: Text(item.product.name),
+                subtitle: Text('Quantity: ${item.quantity}'),
+                trailing: Text('KES ${item.subtotal.toStringAsFixed(2)}'),
+              ),
             ),
 
             const SizedBox(height: 8),
@@ -161,27 +162,17 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                       onPressed: viewModel.isDispatching
                           ? null
                           : () {
-                        _dispatchOrder(
-                          context,
-                          viewModel,
-                          order,
-                        );
-                      },
+                              _dispatchOrder(context, viewModel, order);
+                            },
                       icon: viewModel.isDispatching
                           ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                          : const Icon(
-                        Icons.local_shipping_outlined,
-                      ),
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.local_shipping_outlined),
                       label: Text(
-                        viewModel.isDispatching
-                            ? 'Dispatching...'
-                            : 'Dispatch',
+                        viewModel.isDispatching ? 'Dispatching...' : 'Dispatch',
                       ),
                     ),
                   ),
@@ -201,9 +192,11 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   // STATUS DIALOG
   // ============================================================
 
-  Future<void> _showStatusDialog(BuildContext context,
-      AdminOrdersViewModel viewModel,
-      OrderModel order,) async {
+  Future<void> _showStatusDialog(
+    BuildContext context,
+    AdminOrdersViewModel viewModel,
+    OrderModel order,
+  ) async {
     String selectedStatus = order.orderStatus;
 
     final status = await showDialog<String>(
@@ -288,49 +281,38 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   // DISPATCH ORDER
   // ============================================================
 
-
-  Future<void> _dispatchOrder(BuildContext context,
-      AdminOrdersViewModel viewModel,
-      OrderModel order,) async {
+  Future<void> _dispatchOrder(
+    BuildContext context,
+    AdminOrdersViewModel viewModel,
+    OrderModel order,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text(
-            'Dispatch Order',
-          ),
+          title: const Text('Dispatch Order'),
 
           content: Text(
             'Dispatch order #${order.id} '
-                'to ${order.customerName}?\n\n'
-                'A notification email will be sent '
-                'to ${order.customerEmail}.',
+            'to ${order.customerName}?\n\n'
+            'A notification email will be sent '
+            'to ${order.customerEmail}.',
           ),
 
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                  false,
-                );
+                Navigator.pop(dialogContext, false);
               },
               child: const Text('Cancel'),
             ),
 
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                  true,
-                );
+                Navigator.pop(dialogContext, true);
               },
-              icon: const Icon(
-                Icons.local_shipping,
-              ),
-              label: const Text(
-                'Dispatch',
-              ),
+              icon: const Icon(Icons.local_shipping),
+              label: const Text('Dispatch'),
             ),
           ],
         );
@@ -341,33 +323,28 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
       return;
     }
 
-// ==========================================================
-// SHOW PROGRESS
-// ==========================================================
+    // ==========================================================
+    // SHOW PROGRESS
+    // ==========================================================
 
-    final success =
-    await viewModel.dispatchOrder(order);
+    final success = await viewModel.dispatchOrder(order);
 
     if (!context.mounted) {
       return;
     }
 
-// ==========================================================
-// RESULT
-// ==========================================================
+    // ==========================================================
+    // RESULT
+    // ==========================================================
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        behavior:
-        SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
 
         content: Row(
           children: [
             Icon(
-              success
-                  ? Icons.check_circle
-                  : Icons.error_outline,
+              success ? Icons.check_circle : Icons.error_outline,
               color: Colors.white,
             ),
 
@@ -377,8 +354,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
               child: Text(
                 success
                     ? 'Order dispatched and customer notified.'
-                    : viewModel.errorMessage ??
-                    'Failed to dispatch order.',
+                    : viewModel.errorMessage ?? 'Failed to dispatch order.',
               ),
             ),
           ],
@@ -387,7 +363,3 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
     );
   }
 }
-
-
-
-

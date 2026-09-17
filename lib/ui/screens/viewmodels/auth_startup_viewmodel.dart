@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 
 import 'package:test_app/data/models/user_model.dart';
 import 'package:test_app/data/repositories/auth_repository.dart';
+import 'package:test_app/data/repositories/notification_repository.dart';
 import 'package:test_app/providers/UserProvider.dart';
 
 class AuthStartupViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
   final UserProvider _userProvider;
+  final NotificationRepository _notificationRepository;
 
   AuthStartupViewModel({
     AuthRepository? authRepository,
     UserProvider? userProvider,
+    NotificationRepository? notificationRepository,
   }) : _authRepository = authRepository ?? AuthRepository(),
-       _userProvider = userProvider ?? UserProvider();
+       _userProvider = userProvider ?? UserProvider(),
+       _notificationRepository =
+           notificationRepository ?? NotificationRepository();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -47,6 +52,15 @@ class AuthStartupViewModel extends ChangeNotifier {
 
       if (user != null) {
         await _userProvider.saveUser(user);
+
+        // Initialize FCM for authenticated user
+        try {
+          await _notificationRepository.initializeForUser(uid: user.uid);
+        } catch (e) {
+          // Notification failure should not prevent
+          // the user from entering the application.
+          debugPrint('FCM initialization failed: $e');
+        }
       } else {
         await _userProvider.clearUser();
       }
@@ -73,6 +87,14 @@ class AuthStartupViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      if (_user != null) {
+        try {
+          await _notificationRepository.removeFcmToken(uid: _user!.uid);
+        } catch (e) {
+          debugPrint('Failed to remove FCM token: $e');
+        }
+      }
+
       await _authRepository.logout();
 
       _user = null;

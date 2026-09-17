@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/notification_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/orders_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/product_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/profile_viewmodel.dart';
@@ -28,6 +30,8 @@ import 'package:test_app/ui/screens/viewmodels/wishlist_viewmodel.dart';
 
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/category_repository.dart';
+import 'data/repositories/notification_repository.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +39,12 @@ void main() async {
   await dotenv.load(fileName: '.env');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  //Firebase messaging initialization
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  final notificationService = NotificationService();
+
+  await notificationService.initialize();
+
   final userProvider = UserProvider();
 
   await userProvider.loadSavedUser();
@@ -131,6 +141,16 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => OrdersViewModel()),
         ChangeNotifierProvider(create: (_) => AdminOrdersViewModel()),
+        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
+        Provider<NotificationRepository>(
+          create: (_) => NotificationRepository(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AuthStartupViewModel(
+            userProvider: context.read<UserProvider>(),
+            notificationRepository: context.read<NotificationRepository>(),
+          ),
+        ),
       ],
 
       child: Consumer<ThemeProvider>(

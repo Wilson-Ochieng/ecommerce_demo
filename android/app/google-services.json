@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "277705410335-dbhaekkf8u8gp676re3p62trllm40nd9.apps.googleusercontent.com",
+              "client_id": "277705410335-5dmr9kmmufh2b9p9o5gomlr22qo7h4ah.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.dukaletuke"
+                "bundle_id": "com.dukaletuke.macos"
               }
             }
           ]

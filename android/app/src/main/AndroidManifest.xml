@@ -1,4 +1,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Allows the app to receive push messages via FCM -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <!-- Keeps the device awake to receive messages -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Required for Firebase to check network state -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Optional: for scheduling local notifications (flutter_local_notifications) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!-- Optional: to vibrate on notification -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- ========================================================= -->
+
     <application
         android:label="duka_letu"
         android:name="${applicationName}"
