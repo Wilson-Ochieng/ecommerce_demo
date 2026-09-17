@@ -19,6 +19,7 @@ import 'package:test_app/ui/screens/viewmodels/admin_orders_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/category_viewmodel.dart';
+import 'package:test_app/ui/screens/viewmodels/checkout_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/login_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/notification_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/orders_viewmodel.dart';
@@ -142,6 +143,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OrdersViewModel()),
         ChangeNotifierProvider(create: (_) => AdminOrdersViewModel()),
         ChangeNotifierProvider(create: (_) => NotificationViewModel()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              CheckoutViewModel(userProvider: context.read<UserProvider>()),
+        ),
         Provider<NotificationRepository>(
           create: (_) => NotificationRepository(),
         ),

@@ -124,7 +124,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       orderId: orderId.toString(),
       customerName: user.name,
       customerEmail: user.email,
-      customerUid: user.uid,
     );
 
     if (!context.mounted) return;
@@ -204,7 +203,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CheckoutViewModel(),
+      create: (_) =>
+          CheckoutViewModel(
+            userProvider: context.read<UserProvider>(),
+          ),
       child: Scaffold(
         appBar: AppBar(title: const Text('Checkout')),
         body: Consumer2<CheckoutViewModel, CartViewModel>(
