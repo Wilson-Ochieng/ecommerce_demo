@@ -1,20 +1,27 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+
 import 'package:test_app/constants/theme_data.dart';
+import 'package:test_app/data/repositories/auth_repository.dart';
+import 'package:test_app/data/repositories/category_repository.dart';
+import 'package:test_app/data/repositories/notification_repository.dart';
 import 'package:test_app/data/repositories/product_repository.dart';
 import 'package:test_app/data/services/cloudinary_service.dart';
+import 'package:test_app/data/services/notification_service.dart';
 import 'package:test_app/firebase_options.dart';
+
 import 'package:test_app/providers/ThemeProvider.dart';
 import 'package:test_app/providers/UserProvider.dart';
+
 import 'package:test_app/root_screen.dart';
 import 'package:test_app/ui/screens/auth/login_screen.dart';
 import 'package:test_app/ui/screens/auth/signup_screen.dart';
 import 'package:test_app/ui/screens/auth/startup_screen.dart';
 import 'package:test_app/ui/screens/home_screen.dart';
+
 import 'package:test_app/ui/screens/viewmodels/admin_orders_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/auth_startup_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/cart_viewmodel.dart';
@@ -29,26 +36,35 @@ import 'package:test_app/ui/screens/viewmodels/register_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/user_management_viewmodel.dart';
 import 'package:test_app/ui/screens/viewmodels/wishlist_viewmodel.dart';
 
-import 'data/repositories/auth_repository.dart';
-import 'data/repositories/category_repository.dart';
-import 'data/repositories/notification_repository.dart';
-import 'data/services/notification_service.dart';
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // Load environment variables
   await dotenv.load(fileName: '.env');
 
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //Firebase messaging initialization
+
+  // Register FCM background handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  // Initialize notification service
   final notificationService = NotificationService();
-
   await notificationService.initialize();
+  notificationService.listenForForegroundMessages((RemoteMessage message) {
+    debugPrint('MAIN: Foreground notification received');
 
+    debugPrint('MAIN: Title: ${message.notification?.title}');
+
+    debugPrint('MAIN: Body: ${message.notification?.body}');
+
+    debugPrint('MAIN: Data: ${message.data}');
+  });
+
+  // Load saved user
   final userProvider = UserProvider();
-
   await userProvider.loadSavedUser();
+
   runApp(
     MultiProvider(
       providers: [
@@ -58,7 +74,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
 
         // ==========================================================
-        // USER PROVIDER
+        // USER
         // ==========================================================
         ChangeNotifierProvider.value(value: userProvider),
 
@@ -66,6 +82,13 @@ void main() async {
         // AUTH REPOSITORY
         // ==========================================================
         Provider<AuthRepository>(create: (_) => AuthRepository()),
+
+        // ==========================================================
+        // NOTIFICATION REPOSITORY
+        // ==========================================================
+        Provider<NotificationRepository>(
+          create: (_) => NotificationRepository(),
+        ),
 
         // ==========================================================
         // LOGIN VIEW MODEL
@@ -86,15 +109,15 @@ void main() async {
         // ==========================================================
         // AUTH STARTUP VIEW MODEL
         // ==========================================================
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<AuthStartupViewModel>(
           create: (context) => AuthStartupViewModel(
-            authRepository: context.read<AuthRepository>(),
             userProvider: context.read<UserProvider>(),
+            notificationRepository: context.read<NotificationRepository>(),
           ),
         ),
 
         // ==========================================================
-        // USER MANAGEMENT VIEW MODEL
+        // USER MANAGEMENT
         // ==========================================================
         ChangeNotifierProvider<UserManagementViewModel>(
           create: (context) => UserManagementViewModel(
@@ -108,7 +131,7 @@ void main() async {
         Provider<ProductRepository>(create: (_) => ProductRepository()),
 
         // ==========================================================
-        // CLOUDINARY SERVICE
+        // CLOUDINARY
         // ==========================================================
         Provider<CloudinaryService>(create: (_) => CloudinaryService()),
 
@@ -134,27 +157,53 @@ void main() async {
           create: (context) =>
               CategoryViewModel(repository: context.read<CategoryRepository>()),
         ),
+
+        // ==========================================================
+        // CART
+        // ==========================================================
         ChangeNotifierProvider<CartViewModel>(create: (_) => CartViewModel()),
 
+        // ==========================================================
+        // WISHLIST
+        // ==========================================================
         ChangeNotifierProvider<WishlistViewModel>(
           create: (_) => WishlistViewModel(),
         ),
-        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
-        ChangeNotifierProvider(create: (_) => OrdersViewModel()),
-        ChangeNotifierProvider(create: (_) => AdminOrdersViewModel()),
-        ChangeNotifierProvider(create: (_) => NotificationViewModel()),
-        ChangeNotifierProvider(
+
+        // ==========================================================
+        // PROFILE
+        // ==========================================================
+        ChangeNotifierProvider<ProfileViewModel>(
+          create: (_) => ProfileViewModel(),
+        ),
+
+        // ==========================================================
+        // ORDERS
+        // ==========================================================
+        ChangeNotifierProvider<OrdersViewModel>(
+          create: (_) => OrdersViewModel(),
+        ),
+
+        // ==========================================================
+        // ADMIN ORDERS
+        // ==========================================================
+        ChangeNotifierProvider<AdminOrdersViewModel>(
+          create: (_) => AdminOrdersViewModel(),
+        ),
+
+        // ==========================================================
+        // NOTIFICATIONS
+        // ==========================================================
+        ChangeNotifierProvider<NotificationViewModel>(
+          create: (_) => NotificationViewModel(),
+        ),
+
+        // ==========================================================
+        // CHECKOUT
+        // ==========================================================
+        ChangeNotifierProvider<CheckoutViewModel>(
           create: (context) =>
               CheckoutViewModel(userProvider: context.read<UserProvider>()),
-        ),
-        Provider<NotificationRepository>(
-          create: (_) => NotificationRepository(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AuthStartupViewModel(
-            userProvider: context.read<UserProvider>(),
-            notificationRepository: context.read<NotificationRepository>(),
-          ),
         ),
       ],
 
