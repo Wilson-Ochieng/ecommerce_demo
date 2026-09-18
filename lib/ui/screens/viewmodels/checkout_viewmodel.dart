@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/repositories/mpesa_repository.dart';
-
 import '../../../providers/UserProvider.dart';
 import 'cart_viewmodel.dart';
 
@@ -21,19 +20,45 @@ class CheckoutViewModel extends ChangeNotifier {
 
   bool _isLoading = false;
   String _message = '';
-
   String? _checkoutRequestId;
+  bool _disposed = false;
 
   PaymentMethod get paymentMethod => _paymentMethod;
   bool get isLoading => _isLoading;
   String get message => _message;
   String? get checkoutRequestId => _checkoutRequestId;
 
+  // ----------------------------------------------------------
+  // SAFE notifyListeners (prevents "used after dispose" crash)
+  // ----------------------------------------------------------
+
+  @override
+  void notifyListeners() {
+    if (_disposed) return;
+    super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  // ----------------------------------------------------------
+  // PAYMENT METHOD
+  // ----------------------------------------------------------
+
   void selectPaymentMethod(PaymentMethod method) {
+    if (_paymentMethod == method) return;
     _paymentMethod = method;
     _message = '';
+    _checkoutRequestId = null;
     notifyListeners();
   }
+
+  // ----------------------------------------------------------
+  // CHECKOUT
+  // ----------------------------------------------------------
 
   Future<bool> checkout({
     required CartViewModel cart,
@@ -42,6 +67,8 @@ class CheckoutViewModel extends ChangeNotifier {
     required String customerName,
     required String customerEmail,
   }) async {
+    // ---- Pre-flight validation (no spinner yet) ----
+
     if (cart.isEmpty) {
       _message = 'Your cart is empty.';
       notifyListeners();
@@ -66,7 +93,6 @@ class CheckoutViewModel extends ChangeNotifier {
       return false;
     }
 
-    // Get the authenticated user's UID automatically.
     final customerUid = _userProvider.uid;
 
     if (customerUid == null || customerUid.trim().isEmpty) {
@@ -75,19 +101,26 @@ class CheckoutViewModel extends ChangeNotifier {
       return false;
     }
 
+    // ---- Start loading ----
+
     _isLoading = true;
     _message = '';
     _checkoutRequestId = null;
-
     notifyListeners();
 
     try {
+      // ---- CASH PATH ----
+
       if (_paymentMethod == PaymentMethod.cash) {
+        // Persist the order here if you have an order repository.
+        // e.g. await _orderRepository.createCashOrder(...);
         _message = 'Order ready. Payment will be made in cash.';
         return true;
       }
 
-      final phone = phoneNumber.trim();
+      // ---- MPESA PATH ----
+
+      final phone = _normalizePhone(phoneNumber);
 
       if (phone.isEmpty) {
         _message = 'Please enter your M-Pesa phone number.';
@@ -151,34 +184,61 @@ class CheckoutViewModel extends ChangeNotifier {
     }
   }
 
+  // ----------------------------------------------------------
+  // PHONE NORMALIZATION
+  // ----------------------------------------------------------
+
+  /// Accepts:
+  ///   0712345678      -> 254712345678
+  ///   +254712345678   -> 254712345678
+  ///   254712345678    -> 254712345678
+  ///   712345678       -> 254712345678
+  String _normalizePhone(String input) {
+    var p = input.trim().replaceAll(RegExp(r'[\s\-()]'), '');
+
+    if (p.startsWith('+')) {
+      p = p.substring(1);
+    }
+
+    if (p.startsWith('0')) {
+      p = '254${p.substring(1)}';
+    } else if (p.startsWith('7') && p.length == 9) {
+      p = '254$p';
+    } else if (p.startsWith('1') && p.length == 9) {
+      p = '254$p';
+    }
+
+    return p;
+  }
+
+  // ----------------------------------------------------------
+  // POLL FOR PAYMENT CONFIRMATION
+  // ----------------------------------------------------------
+
   Future<bool> _waitForPaymentConfirmation(String checkoutRequestId) async {
     const maxAttempts = 12;
     const delay = Duration(seconds: 5);
 
     for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      if (_disposed) return false;
+
       try {
         final result = await _mpesaRepository.checkPaymentStatus(
           checkoutRequestId,
         );
 
-        debugPrint(
-          'M-Pesa status attempt ${attempt + 1}: '
-          '${result.status}',
-        );
+        debugPrint('M-Pesa status attempt ${attempt + 1}: ${result.status}');
 
-        if (result.isSuccessful) {
-          return true;
-        }
-
-        if (result.isFailed) {
-          return false;
-        }
+        if (result.isSuccessful) return true;
+        if (result.isTerminal) return false;
+        // else: pending / unknown -> keep polling
       } catch (e) {
         debugPrint('Payment status check error: $e');
       }
 
       if (attempt < maxAttempts - 1) {
         await Future.delayed(delay);
+        if (_disposed) return false;
       }
     }
 

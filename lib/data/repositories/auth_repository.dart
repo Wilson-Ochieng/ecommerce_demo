@@ -374,8 +374,8 @@ class AuthRepository {
     await _firestore.collection('users').doc(uid).delete();
   }
   // ============================================================
-// UPDATE FCM TOKEN
-// ============================================================
+  // UPDATE FCM TOKEN
+  // ============================================================
 
   Future<void> updateFcmToken({
     required String uid,
@@ -386,7 +386,4 @@ class AuthRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
-
-
-
 }

@@ -204,9 +204,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) =>
-          CheckoutViewModel(
-            userProvider: context.read<UserProvider>(),
-          ),
+          CheckoutViewModel(userProvider: context.read<UserProvider>()),
       child: Scaffold(
         appBar: AppBar(title: const Text('Checkout')),
         body: Consumer2<CheckoutViewModel, CartViewModel>(
