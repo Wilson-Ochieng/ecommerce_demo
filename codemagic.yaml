@@ -1,4 +1,9 @@
 workflows:
+
+  # ============================================================
+  # ANDROID RELEASE
+  # ============================================================
+
   android-release:
     name: Duka Letu Android Release
 
@@ -10,6 +15,7 @@ workflows:
       flutter: stable
 
     scripts:
+
       - name: Get Flutter packages
         script: |
           flutter pub get
@@ -18,9 +24,61 @@ workflows:
         script: |
           flutter analyze
 
-      - name: Build release APK
+      - name: Build Android APK
         script: |
           flutter build apk --release
 
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
+
+
+  # ============================================================
+  # IOS RELEASE
+  # ============================================================
+
+  ios-release:
+    name: Duka Letu iOS Release
+
+    instance_type: mac_mini_m2
+
+    max_build_duration: 60
+
+    environment:
+
+      flutter: stable
+
+      xcode: latest
+
+      cocoapods: default
+
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.dukaletuke
+
+    scripts:
+
+      - name: Set up iOS code signing
+        script: |
+          xcode-project use-profiles
+
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+
+      - name: Install CocoaPods dependencies
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Analyze Flutter project
+        script: |
+          flutter analyze
+
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa --release
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+
