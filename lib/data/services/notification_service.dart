@@ -122,31 +122,23 @@ class NotificationService {
   // ============================================================
 
   void listenForForegroundMessages(
-      void Function(RemoteMessage message) onMessage,
-      ) {
+    void Function(RemoteMessage message) onMessage,
+  ) {
     debugPrint('FCM FOREGROUND LISTENER REGISTERED');
 
-    FirebaseMessaging.onMessage.listen(
-          (RemoteMessage message) async {
-        debugPrint('FCM FOREGROUND MESSAGE RECEIVED');
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      debugPrint('FCM FOREGROUND MESSAGE RECEIVED');
 
-        debugPrint(
-          'Title: ${message.notification?.title}',
-        );
+      debugPrint('Title: ${message.notification?.title}');
 
-        debugPrint(
-          'Body: ${message.notification?.body}',
-        );
+      debugPrint('Body: ${message.notification?.body}');
 
-        debugPrint(
-          'Data: ${message.data}',
-        );
+      debugPrint('Data: ${message.data}');
 
-        onMessage(message);
+      onMessage(message);
 
-        await _showLocalNotification(message);
-      },
-    );
+      await _showLocalNotification(message);
+    });
   }
 
   // ============================================================

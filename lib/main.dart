@@ -194,9 +194,7 @@ Future<void> main() async {
         // ==========================================================
         // NOTIFICATIONS
         // ==========================================================
-        ChangeNotifierProvider<NotificationViewModel>(
-          create: (_) => NotificationViewModel(),
-        ),
+
 
         // ==========================================================
         // CHECKOUT
